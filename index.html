@@ -15,6 +15,7 @@
             --blue-accent: #38bdf8;
             --purple-accent: #c084fc;
             --danger-color: #ef4444;
+            --new-accent: #f59e0b;
             --text-main: #ffffff;
             --text-dim: #94a3b8;
         }
@@ -38,7 +39,7 @@
         h1 { font-size: 1.3rem; background: linear-gradient(90deg, var(--pink-accent), var(--blue-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.4; font-weight: 600; }
         .subtitle { color: var(--text-dim); font-size: 0.8rem; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Search & Filter (FIXED BUG OVERLAP) */
+        /* Search & Filter */
         .controls-area { margin-bottom: 25px; }
         .search-wrapper { position: relative; width: 100%; margin-bottom: 15px; display: flex; align-items: center; }
         .search-wrapper svg { position: absolute; left: 16px; color: var(--text-dim); pointer-events: none; z-index: 2; }
@@ -63,11 +64,11 @@
         /* 1:1 Image Ratio */
         .card-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 10px; background: #000; margin-bottom: 12px; border: 1px solid var(--border-color); }
         
-        /* NEW Badge Style (Top Right Pop-out) */
+        /* NEW Badge Style */
         .badge-new { position: absolute; top: -6px; right: -6px; background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; padding: 6px 12px; border-radius: 12px; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); z-index: 10; display: flex; align-items: center; gap: 4px; animation: pulse-badge 2s infinite; pointer-events: none; }
         @keyframes pulse-badge { 0% { transform: scale(1); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); } 50% { transform: scale(1.05); box-shadow: 0 4px 20px rgba(239, 68, 68, 0.7); } 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); } }
 
-        /* Detail Tags (Under Image) */
+        /* Detail Tags */
         .detail-tags { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
         .tag { padding: 4px 10px; border-radius: 8px; font-size: 0.7rem; font-weight: 500; display: flex; align-items: center; gap: 5px; }
         .tag-ep { background: rgba(56, 189, 248, 0.1); color: var(--blue-accent); border: 1px solid rgba(56, 189, 248, 0.2); }
@@ -130,7 +131,7 @@
         <path fill="var(--pink-accent)" d="M50 20 C40 0, 20 10, 30 30 C10 20, 0 40, 20 50 C0 60, 10 80, 30 70 C20 90, 40 100, 50 80 C60 100, 80 90, 70 70 C90 80, 100 60, 80 50 C100 40, 90 20, 70 30 C80 10, 60 0, 50 20 Z" />
         <circle cx="50" cy="50" r="14" fill="var(--bg-color)" />
     </svg>
-    <div id="debug-msg">ระบบกำลังเตรียมข้อมูล...</div>
+    <div id="debug-msg">รอแป๊บนึงน้า กำลังจัดเตรียมหน้าร้าน...</div>
 </div>
 
 <div class="container">
@@ -226,7 +227,7 @@
     </div>
 </div>
 
-<!-- Delete Confirmation Modal (FIXED NULL BUG) -->
+<!-- Delete Confirmation Modal (FIXED LOGIC BUG) -->
 <div id="modal-delete" class="modal">
     <div class="modal-content delete-style">
         <div style="margin-bottom: 15px; color: var(--danger-color); display: flex; justify-content: center;">
@@ -281,10 +282,11 @@
         if (id === 'view-admin') fetchAdminView();
     }
 
+    /* ================= SYSTEM: USER ================= */
     async function fetchUserView() {
         const area = document.getElementById('user-grid');
         const controls = document.getElementById('controls-area');
-        area.innerHTML = '<p style="grid-column: 1/-1; text-align:center; font-size:0.9rem;">กำลังโหลดข้อมูล...</p>';
+        area.innerHTML = '<p style="grid-column: 1/-1; text-align:center; font-size:0.9rem;">กำลังดึงข้อมูลสุดคิวท์...</p>';
         
         const { data, error } = await supabase.from('templates').select('*').order('created_at', { ascending: false });
         if (error) return area.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
@@ -292,7 +294,7 @@
         allTemplates = data || [];
         if (allTemplates.length === 0) {
             controls.style.display = 'none';
-            area.innerHTML = '<p style="grid-column: 1/-1; text-align:center; opacity:0.5; font-size:0.9rem;">ยังไม่มีรายการข้อมูล</p>';
+            area.innerHTML = '<p style="grid-column: 1/-1; text-align:center; opacity:0.5; font-size:0.9rem;">ยังไม่มีรายการข้อมูลน้า</p>';
             return;
         }
 
@@ -379,6 +381,7 @@
         }).join('');
     }
 
+    /* ================= SYSTEM: ADMIN ================= */
     async function processLogin() {
         const email = document.getElementById('login-email').value;
         const pass = document.getElementById('login-pass').value;
@@ -495,8 +498,7 @@
             let imageUrl = document.getElementById('f-old-url').value;
             if (file) {
                 const ext = file.name.split('.').pop();
-                // 🛑 Fix: ตั้งชื่อไฟล์ให้ปลอดภัย ไม่มีภาษาไทยแน่นอน
-                const safeName = Date.now() + "_" + Math.random().toString(36).substring(2, 10) + "." + ext;
+                const safeName = Date.now() + "_" + Math.random().toString(36).substring(2, 9) + "." + ext;
                 const { error: upErr } = await supabase.storage.from('images').upload(safeName, file);
                 if (upErr) throw upErr;
                 imageUrl = supabase.storage.from('images').getPublicUrl(safeName).data.publicUrl;
@@ -522,35 +524,36 @@
         } finally { btn.disabled = false; }
     }
 
-    /* --- Custom Delete Modal (FIXED NULL BUG) --- */
+    /* --- FIX: Custom Delete Logic --- */
     function openDeleteModal(id) {
-        if (!id || id === 'undefined' || id === 'null') {
-            alert('ไม่สามารถลบได้: ข้อมูลรายการนี้ไม่สมบูรณ์ (ไม่มีรหัส ID)');
-            return;
-        }
-        itemToDeleteId = id;
-        document.getElementById('modal-delete').classList.add('active');
+        if (!id || id === 'undefined') return alert('ข้อมูลไม่สมบูรณ์ ไม่สามารถลบได้');
+        itemToDeleteId = id; // เก็บ ID ที่ต้องการลบไว้ก่อน
+        document.getElementById('modal-delete').classList.add('active'); // แสดงป๊อปอัป
     }
 
     function closeDeleteModal() {
-        itemToDeleteId = null;
         document.getElementById('modal-delete').classList.remove('active');
+        itemToDeleteId = null; // คืนค่าว่างถ้ากดยกเลิก
     }
 
     async function confirmDelete() {
         if (!itemToDeleteId) return;
-        closeDeleteModal();
+        
+        const targetId = itemToDeleteId; // จำ ID ไว้ในตัวแปรใหม่
+        document.getElementById('modal-delete').classList.remove('active'); // ซ่อนป๊อปอัป
         
         const grid = document.getElementById('admin-grid');
         grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">กำลังลบข้อมูล...</p>';
 
-        const { error } = await supabase.from('templates').delete().eq('id', itemToDeleteId);
-        if (error) alert("Error deleting: " + error.message);
+        const { error } = await supabase.from('templates').delete().eq('id', targetId); // ส่งคำสั่งลบ
+        itemToDeleteId = null; // เคลียร์ตัวแปรทิ้ง
         
-        itemToDeleteId = null;
-        fetchAdminView();
+        if (error) alert("ลบไม่สำเร็จ: " + error.message);
+        fetchAdminView(); // โหลดหน้าใหม่
     }
 </script>
 
 </body>
 </html>
+
+
