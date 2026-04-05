@@ -2,117 +2,303 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PinkJu Style | Member Templates</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PinkJu Style Control System</title>
     <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- บังคับโหลด Supabase SDK ให้เสร็จก่อนเริ่มหน้าเว็บ -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-dark: #0f172a; --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1);
-            --pink: #f472b6; --blue: #38bdf8; --purple: #c084fc; --text-muted: #94a3b8;
+            --bg: #0f172a; --card: #1e293b; --border: rgba(255, 255, 255, 0.1);
+            --pink: #f472b6; --blue: #38bdf8; --purple: #c084fc; --white: #ffffff;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Mitr', sans-serif; }
-        body { background: var(--bg-gradient); color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; flex: 1; width: 100%; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Mitr', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--white); min-height: 100vh; overflow-x: hidden; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
         
-        .hero { text-align: center; padding: 3.5rem 1.5rem; background: var(--glass); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 30px; margin-bottom: 3.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-        .badge { display: inline-flex; align-items: center; gap: 8px; padding: 0.6rem 1.4rem; background: rgba(244, 114, 182, 0.15); border: 1px solid var(--pink); border-radius: 999px; color: var(--pink); font-size: 0.8rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
-        h1 { font-size: 1.8rem; background: linear-gradient(to right, var(--pink), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.5; font-weight: 600; }
-        .subtitle { color: var(--text-muted); margin-top: 15px; font-size: 0.95rem; }
-
-        .ep-section { margin-bottom: 4rem; }
-        .ep-title { display: flex; align-items: center; gap: 12px; font-size: 1.6rem; margin-bottom: 2rem; color: #fff; border-left: 5px solid var(--pink); padding-left: 15px; font-weight: 500; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
-        .card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 1.2rem; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; height: 100%; }
-        .card:hover { transform: translateY(-10px); border-color: var(--purple); box-shadow: 0 15px 35px rgba(192, 132, 252, 0.25); }
-        .card-img { width: 100%; height: 220px; object-fit: cover; border-radius: 18px; margin-bottom: 1.2rem; background: #1e293b; border: 1px solid rgba(255,255,255,0.05); }
-        .card-title { font-size: 1.1rem; margin-bottom: 1.5rem; font-weight: 400; color: #f1f5f9; }
-        
-        .btn-glow { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0.9rem; background: linear-gradient(45deg, var(--pink), var(--purple)); color: white; text-decoration: none; border-radius: 999px; font-weight: 500; transition: 0.3s; box-shadow: 0 4px 15px rgba(244, 114, 182, 0.3); }
-        .btn-glow:hover { transform: scale(1.03); box-shadow: 0 0 25px rgba(244, 114, 182, 0.7); }
-        
-        #status-area { text-align: center; padding: 5rem 2rem; color: var(--blue); }
-        .spinner { width: 45px; height: 45px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1.5rem; }
+        /* Loading Overlay */
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--pink); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* UI Header */
+        header { text-align: center; padding: 40px 15px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 25px; margin-bottom: 30px; }
+        h1 { font-size: 1.6rem; background: linear-gradient(90deg, var(--pink), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.4; }
         
-        .footer { text-align: center; padding: 3rem; opacity: 0.3; border-top: 1px solid var(--glass-border); margin-top: 4rem; }
-        .admin-link { color: #94a3b8; text-decoration: none; font-size: 0.75rem; transition: 0.3s; }
-        .admin-link:hover { color: var(--pink); opacity: 1; }
+        /* สลับหน้าจอ */
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        /* การ์ดรายการ (หน้าร้าน) */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; display: flex; flex-direction: column; transition: 0.2s; }
+        .card-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; background: #000; margin-bottom: 15px; }
+        
+        /* ปุ่มกดแบบเน้นติดง่าย */
+        .btn { 
+            width: 100%; padding: 15px; border-radius: 12px; border: none; cursor: pointer;
+            background: linear-gradient(45deg, var(--pink), var(--purple)); color: #fff;
+            font-weight: 600; font-size: 1rem; transition: 0.2s; 
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            touch-action: manipulation;
+        }
+        .btn:active { transform: scale(0.96); opacity: 0.8; }
+        .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid var(--border); }
+
+        /* หน้า Login */
+        .auth-box { max-width: 400px; margin: 40px auto; padding: 30px; background: var(--card); border-radius: 25px; border: 1px solid var(--border); }
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px; }
+        input { width: 100%; padding: 14px; background: #0f172a; border: 1px solid var(--border); border-radius: 12px; color: #fff; outline: none; font-size: 1rem; }
+        input:focus { border-color: var(--blue); }
+
+        /* ข้อความแจ้งสถานะ (สำคัญ) */
+        .status-msg { margin-top: 15px; font-size: 0.85rem; text-align: center; min-height: 1.2rem; }
+        .error { color: #f87171; }
+        .success { color: #4ade80; }
+
+        /* หน้า Admin */
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .add-card { border: 2px dashed var(--pink); background: transparent; height: 280px; justify-content: center; color: var(--pink); }
+        .action-btns { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
+        .icon-btn { width: 35px; height: 35px; border-radius: 50%; background: #000; color: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); cursor: pointer; }
+
+        /* Modal */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 25px; width: 100%; max-width: 450px; position: relative; }
+
+        .footer { text-align: center; margin-top: 50px; padding: 20px; opacity: 0.3; }
+        .admin-trigger { color: #94a3b8; text-decoration: none; font-size: 0.7rem; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="hero">
-            <div class="badge">
-                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-                Exclusive Member Only
-            </div>
-            <h1>เว็บไซต์สำหรับสมาชิกภายในคอร์สสอนทำเว็บสไตล์ PinkJu เท่านั้น</h1>
-            <p class="subtitle">เลือกเทมเพลตที่ใช่ นำไปใช้งานได้เลย!!</p>
-        </header>
 
-        <div id="status-area">
-            <div class="spinner"></div>
-            <p>กำลังดาวน์โหลดข้อมูลระบบ</p>
-        </div>
-        <main id="content-grid"></main>
+<!-- แถบโหลดหน้าแรก -->
+<div id="loader">
+    <div style="text-align: center;">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; font-size: 0.8rem; color: var(--blue);">Connecting to System...</p>
     </div>
+</div>
 
-    <footer class="footer"><a href="admin.html" class="admin-link">Admin Access Control</a></footer>
+<div class="container">
+    <header>
+        <h1>เว็บไซต์สำหรับสมาชิกภายในคอร์สสอนทำสไตล์ PinkJu เท่านั้น</h1>
+        <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 10px;">Membership Template Database System</p>
+    </header>
 
-    <script>
-        const SUPABASE_URL = 'https://fwcwwmnrxecsxjgxephn.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3Y3d3bW5yeGVjc3hqZ3hlcGhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzNjg4NjMsImV4cCI6MjA5MDk0NDg2M30.aduDIUVyy92BC6uRFBaUaPH2N9tmQlweEk6zWb07GCY';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <!-- 👤 หน้าร้าน (User View) -->
+    <section id="view-user" class="view-section active">
+        <div id="user-content" class="grid"></div>
+        <div class="footer">
+            <a href="javascript:void(0)" onclick="switchView('view-login')" class="admin-trigger">System Access</a>
+        </div>
+    </section>
 
-        async function fetchTemplates() {
-            const display = document.getElementById('content-grid');
-            const status = document.getElementById('status-area');
+    <!-- 🔑 หน้าล็อกอิน (Login View) -->
+    <section id="view-login" class="view-section">
+        <div class="auth-box">
+            <h2 style="text-align:center; margin-bottom:25px;">Admin Login</h2>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="login-email" placeholder="admin@example.com">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="login-pass" placeholder="••••••••">
+            </div>
+            <button class="btn" id="btn-do-login">เข้าสู่ระบบจัดการ</button>
+            <div id="login-status" class="status-msg"></div>
+            <button class="btn btn-secondary" style="margin-top:10px;" onclick="switchView('view-user')">กลับหน้าหลัก</button>
+        </div>
+    </section>
 
-            try {
-                const { data, error } = await supabase.from('templates').select('*').order('ep', { ascending: true });
-                if (error) throw error;
+    <!-- 🛠️ หน้าแอดมิน (Admin View) -->
+    <section id="view-admin" class="view-section">
+        <div class="admin-header">
+            <h3>จัดการระบบ</h3>
+            <button class="btn btn-secondary" style="width:auto; padding:8px 20px;" onclick="handleLogout()">ออกจากระบบ</button>
+        </div>
+        <div id="admin-grid" class="grid"></div>
+    </section>
+</div>
 
-                status.style.display = 'none';
-                if (!data || data.length === 0) {
-                    display.innerHTML = '<p style="text-align:center; opacity:0.5; padding: 4rem;">ไม่มีข้อมูลในระบบ</p>';
-                    return;
-                }
+<!-- ✏️ หน้าต่างเพิ่ม/แก้ไข (Modal) -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <h3 id="modal-title" style="margin-bottom:20px;">จัดการข้อมูล</h3>
+        <div class="input-group">
+            <label>รูปภาพพรีวิว</label>
+            <input type="file" id="f-img" accept="image/*">
+            <img id="p-img" style="width:100%; height:120px; object-fit:cover; border-radius:10px; margin-top:10px; display:none;">
+        </div>
+        <div class="input-group"><label>หมวดหมู่ (EP)</label><input type="text" id="f-ep"></div>
+        <div class="input-group"><label>ชื่อเทมเพลต</label><input type="text" id="f-title"></div>
+        <div class="input-group"><label>ลิงก์ Google Drive</label><input type="url" id="f-link"></div>
+        
+        <input type="hidden" id="f-id">
+        <input type="hidden" id="f-old">
+        
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
+            <button class="btn" id="btn-do-save">บันทึกข้อมูล</button>
+        </div>
+        <div id="modal-status" class="status-msg"></div>
+    </div>
+</div>
 
-                const grouped = data.reduce((acc, item) => {
-                    const ep = item.ep || 'GENERAL';
-                    if (!acc[ep]) acc[ep] = [];
-                    acc[ep].push(item);
-                    return acc;
-                }, {});
+<script>
+    const CONFIG = {
+        URL: 'https://fwcwwmnrxecsxjgxephn.supabase.co',
+        KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3Y3d3bW5yeGVjc3hqZ3hlcGhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzNjg4NjMsImV4cCI6MjA5MDk0NDg2M30.aduDIUVyy92BC6uRFBaUaPH2N9tmQlweEk6zWb07GCY'
+    };
 
-                let html = '';
-                for (const [ep, items] of Object.entries(grouped)) {
-                    html += `<section class="ep-section"><h2 class="ep-title">${ep}</h2><div class="grid">`;
-                    items.forEach(item => {
-                        html += `
-                            <div class="card">
-                                <img src="${item.image}" class="card-img" alt="template" onerror="this.src='https://via.placeholder.com/400x300/1e293b/fff?text=No+Preview'">
-                                <h3 class="card-title">${item.title}</h3>
-                                <a href="${item.link}" target="_blank" class="btn-glow">
-                                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                                    เข้าใช้งานเทมเพลต
-                                </a>
-                            </div>`;
-                    });
-                    html += `</div></section>`;
-                }
-                display.innerHTML = html;
-            } catch (err) {
-                status.innerHTML = `<div style="color:#ef4444; border: 1px solid #ef4444; padding: 1rem; border-radius: 15px;">ระบบขัดข้อง: ${err.message}</div>`;
-            }
+    let supabase;
+
+    // เริ่มระบบ
+    window.onload = async function() {
+        try {
+            if (typeof window.supabase === 'undefined') throw new Error("SDK Fail");
+            supabase = window.supabase.createClient(CONFIG.URL, CONFIG.KEY);
+            
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) switchView('view-admin');
+            else loadUserView();
+
+            // ผูกเหตุการณ์ปุ่มแบบเน้น Mobile
+            document.getElementById('btn-do-login').onclick = handleLogin;
+            document.getElementById('btn-do-save').onclick = handleSave;
+            
+            document.getElementById('loader').style.display = 'none';
+        } catch (err) {
+            alert("System Error: " + err.message);
         }
+    };
 
-        supabase.channel('public:templates').on('postgres_changes', { event: '*', schema: 'public', table: 'templates' }, () => fetchTemplates()).subscribe();
-        window.addEventListener('DOMContentLoaded', fetchTemplates);
-    </script>
+    function switchView(id) {
+        document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        if (id === 'view-user') loadUserView();
+        if (id === 'view-admin') loadAdminView();
+    }
+
+    async function handleLogin() {
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-pass').value;
+        const status = document.getElementById('login-status');
+        
+        if (!email || !pass) { status.innerHTML = '<span class="error">กรุณากรอกข้อมูลให้ครบ</span>'; return; }
+
+        status.innerHTML = 'กำลังตรวจสอบสิทธิ์...';
+        const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+
+        if (error) status.innerHTML = `<span class="error">${error.message}</span>`;
+        else {
+            status.innerHTML = '<span class="success">สำเร็จ! กำลังเข้าสู่ระบบ</span>';
+            setTimeout(() => switchView('view-admin'), 500);
+        }
+    }
+
+    async function handleLogout() {
+        await supabase.auth.signOut();
+        switchView('view-user');
+    }
+
+    async function loadUserView() {
+        const area = document.getElementById('user-content');
+        const { data, error } = await supabase.from('templates').select('*').order('ep', { ascending: true });
+        if (error) return;
+
+        if (!data.length) { area.innerHTML = '<p style="text-align:center; width:100%; opacity:0.5;">ไม่มีรายการ</p>'; return; }
+
+        area.innerHTML = data.map(item => `
+            <div class="card">
+                <img src="${item.image}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300?text=No+Preview'">
+                <h4 style="margin-bottom:15px; font-weight:400;">${item.title}</h4>
+                <a href="${item.link}" target="_blank" class="btn">เข้าใช้งานเทมเพลต</a>
+            </div>
+        `).join('');
+    }
+
+    async function loadAdminView() {
+        const grid = document.getElementById('admin-grid');
+        const { data, error } = await supabase.from('templates').select('*').order('created_at', { ascending: false });
+        if (error) return;
+
+        grid.innerHTML = `<div class="card add-card" onclick="openModal()">+ เพิ่มรายการ</div>`;
+        data.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'card';
+            div.style.position = 'relative';
+            div.innerHTML = `
+                <div class="action-btns">
+                    <button class="icon-btn" onclick='openModal(${JSON.stringify(item)})'>Edit</button>
+                    <button class="icon-btn" onclick="handleDelete('${item.id}')" style="color:#f87171">Del</button>
+                </div>
+                <img src="${item.image}" class="card-img">
+                <p style="font-size:0.8rem; color:var(--blue); font-weight:600;">${item.ep}</p>
+                <p style="font-size:0.9rem;">${item.title}</p>
+            `;
+            grid.appendChild(div);
+        });
+    }
+
+    window.openModal = function(item = null) {
+        document.getElementById('f-id').value = item ? item.id : '';
+        document.getElementById('f-title').value = item ? item.title : '';
+        document.getElementById('f-ep').value = item ? item.ep : '';
+        document.getElementById('f-link').value = item ? item.link : '';
+        document.getElementById('f-old').value = item ? item.image : '';
+        const p = document.getElementById('p-img');
+        if (item) { p.src = item.image; p.style.display = 'block'; } else { p.style.display = 'none'; }
+        document.getElementById('modal').classList.add('active');
+    };
+
+    window.closeModal = () => {
+        document.getElementById('modal').classList.remove('active');
+        document.getElementById('modal-status').innerHTML = '';
+    };
+
+    async function handleSave() {
+        const id = document.getElementById('f-id').value;
+        const file = document.getElementById('f-img').files[0];
+        const status = document.getElementById('modal-status');
+        
+        status.innerHTML = 'กำลังบันทึก...';
+        try {
+            let imgUrl = document.getElementById('f-old').value;
+            if (file) {
+                const name = Date.now() + "_" + file.name.replace(/\s/g, '');
+                const { error: upErr } = await supabase.storage.from('images').upload(name, file);
+                if (upErr) throw upErr;
+                imgUrl = supabase.storage.from('images').getPublicUrl(name).data.publicUrl;
+            }
+
+            const p = { 
+                title: document.getElementById('f-title').value, 
+                ep: document.getElementById('f-ep').value, 
+                link: document.getElementById('f-link').value, 
+                image: imgUrl 
+            };
+
+            const { error } = id ? await supabase.from('templates').update(p).eq('id', id) : await supabase.from('templates').insert([p]);
+            if (error) throw error;
+            
+            closeModal();
+            loadAdminView();
+        } catch (e) {
+            status.innerHTML = `<span class="error">${e.message}</span>`;
+        }
+    }
+
+    window.handleDelete = async (id) => {
+        if (!confirm("ยืนยันการลบ?")) return;
+        await supabase.from('templates').delete().eq('id', id);
+        loadAdminView();
+    };
+</script>
+
 </body>
 </html>
 
