@@ -3,151 +3,372 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PinkJu Style Management System</title>
+    <title>PinkJu Style System</title>
     <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7"></script>
     <style>
         :root {
-            --bg: #0f172a; --card: #1e293b; --border: rgba(255, 255, 255, 0.1);
-            --pink: #f472b6; --blue: #38bdf8; --purple: #c084fc; --text: #f8fafc; --text-dim: #94a3b8;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: rgba(255, 255, 255, 0.1);
+            --pink: #f472b6;
+            --blue: #38bdf8;
+            --purple: #c084fc;
+            --white: #ffffff;
+            --text-dim: #94a3b8;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Mitr', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
-        
-        /* Loading Screen */
-        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-        .spinner { width: 45px; height: 45px; border: 4px solid var(--border); border-top-color: var(--pink); border-radius: 50%; animation: spin 1s linear infinite; }
+
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Mitr', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        body { 
+            background: var(--bg); 
+            color: var(--white); 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+        }
+
+        .container { 
+            max-width: 1100px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+
+        /* Initial Loading */
+        #loader { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: var(--bg); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 9999; 
+        }
+
+        .spinner { 
+            width: 45px; 
+            height: 45px; 
+            border: 4px solid var(--border); 
+            border-top-color: var(--pink); 
+            border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+        }
+
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        #debug-msg { margin-top: 20px; font-size: 0.85rem; color: var(--blue); text-align: center; }
 
         /* Header UI */
-        header { text-align: center; padding: 50px 20px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 30px; margin-bottom: 40px; }
-        h1 { font-size: 1.6rem; background: linear-gradient(90deg, var(--pink), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.5; font-weight: 600; }
-        .subtitle { color: var(--text-dim); font-size: 0.8rem; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        header { 
+            text-align: center; 
+            padding: 60px 20px; 
+            background: rgba(255,255,255,0.02); 
+            border: 1px solid var(--border); 
+            border-radius: 35px; 
+            margin-bottom: 40px; 
+        }
+
+        h1 { 
+            font-size: 1.7rem; 
+            background: linear-gradient(90deg, var(--pink), var(--blue)); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            line-height: 1.5; 
+            font-weight: 600; 
+        }
+
+        .subtitle { 
+            color: var(--text-dim); 
+            font-size: 0.8rem; 
+            margin-top: 12px; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+        }
 
         /* View Control */
-        .view-section { display: none; opacity: 0; transition: opacity 0.3s; }
-        .view-section.active { display: block; opacity: 1; }
-        .section-label { font-size: 1.3rem; margin: 40px 0 20px; border-left: 5px solid var(--pink); padding-left: 15px; font-weight: 500; }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
 
         /* Grid System */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 18px; display: flex; flex-direction: column; transition: 0.3s; position: relative; }
-        .card:hover { transform: translateY(-5px); border-color: var(--purple); }
-        .card-img { width: 100%; height: 200px; object-fit: cover; border-radius: 16px; background: #000; margin-bottom: 20px; border: 1px solid var(--border); }
-        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 25px; 
+        }
+
+        .card { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-radius: 25px; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            transition: 0.3s; 
+            position: relative; 
+        }
+
+        .card:hover { 
+            transform: translateY(-8px); 
+            border-color: var(--purple); 
+        }
+
+        .card-img { 
+            width: 100%; 
+            height: 200px; 
+            object-fit: cover; 
+            border-radius: 18px; 
+            background: #000; 
+            margin-bottom: 20px; 
+            border: 1px solid var(--border); 
+        }
+
+        .card-title { 
+            font-size: 1.05rem; 
+            margin-bottom: 20px; 
+            font-weight: 400; 
+            color: #f1f5f9; 
+            min-height: 3rem;
+        }
+
         /* Buttons */
         .btn { 
-            width: 100%; padding: 16px; border-radius: 15px; border: none; cursor: pointer;
-            background: linear-gradient(45deg, var(--pink), var(--purple)); color: #fff;
-            font-weight: 600; font-size: 1rem; transition: 0.2s; 
-            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; 
+            padding: 15px; 
+            border-radius: 16px; 
+            border: none; 
+            cursor: pointer;
+            background: linear-gradient(45deg, var(--pink), var(--purple)); 
+            color: #fff;
+            font-weight: 600; 
+            font-size: 1rem; 
+            transition: 0.2s; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px;
             touch-action: manipulation;
         }
-        .btn:active { transform: scale(0.96); opacity: 0.9; }
-        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: #fff; }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .btn:active { 
+            transform: scale(0.96); 
+            opacity: 0.9; 
+        }
+
+        .btn-secondary { 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid var(--border); 
+        }
+
+        .btn:disabled { 
+            opacity: 0.5; 
+            cursor: not-allowed; 
+        }
 
         /* Login Card */
-        .login-card { max-width: 400px; margin: 40px auto; padding: 40px; background: var(--card); border-radius: 30px; border: 1px solid var(--border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .input-wrap { margin-bottom: 20px; }
-        .input-wrap label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
-        input { width: 100%; padding: 15px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; color: #fff; outline: none; font-size: 1rem; }
+        .login-card { 
+            max-width: 420px; 
+            margin: 50px auto; 
+            padding: 40px; 
+            background: var(--card); 
+            border-radius: 35px; 
+            border: 1px solid var(--border); 
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
+        }
+
+        .form-group { margin-bottom: 25px; }
+
+        .form-group label { 
+            display: block; 
+            font-size: 0.8rem; 
+            color: var(--text-dim); 
+            margin-bottom: 10px; 
+            text-transform: uppercase; 
+        }
+
+        input { 
+            width: 100%; 
+            padding: 16px; 
+            background: rgba(0,0,0,0.3); 
+            border: 1px solid var(--border); 
+            color: #fff; 
+            border-radius: 14px; 
+            outline: none; 
+            font-size: 1rem; 
+        }
+
         input:focus { border-color: var(--blue); }
 
         /* Admin UI */
-        .admin-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .add-card-trigger { border: 2.5px dashed var(--pink); background: transparent; height: 300px; justify-content: center; color: var(--pink); cursor: pointer; font-weight: 600; }
-        .action-overlay { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; }
-        .circle-btn { width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.85); color: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); cursor: pointer; font-size: 11px; }
+        .admin-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 35px; 
+        }
 
-        /* Modal Layer */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .add-card { 
+            border: 2.5px dashed var(--pink); 
+            background: transparent; 
+            height: 300px; 
+            justify-content: center; 
+            color: var(--pink); 
+            cursor: pointer; 
+            font-weight: 600; 
+        }
+
+        .action-btns { 
+            position: absolute; 
+            top: 15px; 
+            right: 15px; 
+            display: flex; 
+            gap: 10px; 
+        }
+
+        .icon-btn { 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            background: rgba(0,0,0,0.8); 
+            color: #fff; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border: 1px solid var(--border); 
+            cursor: pointer; 
+        }
+
+        /* Modal */
+        .modal { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.95); 
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 1000; 
+            padding: 20px; 
+        }
+
         .modal.active { display: flex; }
-        .modal-content { background: var(--card); padding: 35px; border-radius: 30px; width: 100%; max-width: 480px; position: relative; border: 1px solid var(--border); }
-        
-        .footer { text-align: center; margin-top: 60px; padding: 40px; opacity: 0.2; border-top: 1px solid var(--border); }
-        .admin-link { color: var(--text-dim); text-decoration: none; font-size: 0.7rem; }
 
-        /* Alerts */
-        .status-info { font-size: 0.8rem; text-align: center; margin-top: 15px; min-height: 1.2rem; }
-        .err-text { color: #f87171; }
-        .success-text { color: #4ade80; }
+        .modal-content { 
+            background: var(--card); 
+            padding: 40px; 
+            border-radius: 35px; 
+            width: 100%; 
+            max-width: 500px; 
+            position: relative; 
+            border: 1px solid var(--border); 
+        }
+
+        /* Status Display */
+        .status-box { 
+            font-size: 0.85rem; 
+            text-align: center; 
+            margin-top: 15px; 
+            min-height: 1.2rem; 
+        }
+
+        .error { color: #f87171; }
+        .success { color: #4ade80; }
+
+        .footer { 
+            text-align: center; 
+            margin-top: 80px; 
+            padding: 40px; 
+            opacity: 0.2; 
+            border-top: 1px solid var(--border); 
+        }
+
+        .admin-link { 
+            color: var(--text-dim); 
+            text-decoration: none; 
+            font-size: 0.75rem; 
+        }
     </style>
 </head>
 <body>
 
 <div id="loader">
     <div class="spinner"></div>
-    <div id="debug-msg">Starting Database Connection...</div>
+    <p id="load-msg" style="margin-top: 20px; font-size: 0.9rem; color: var(--blue);">Connecting to System...</p>
 </div>
 
 <div class="container">
     <header>
         <h1>เว็บไซต์สำหรับสมาชิกภายในคอร์สสอนทำเว็บสไตล์พิ้งจูเท่านั้น</h1>
-        <p class="subtitle">Secure Content Management System</p>
+        <p class="subtitle">Secure Membership Control System</p>
     </header>
 
-    <!-- Guest View -->
+    <!-- 1. Guest Content -->
     <section id="view-user" class="view-section">
         <div id="user-grid" class="grid"></div>
         <div class="footer">
-            <a href="javascript:void(0)" onclick="navigateTo('view-login')" class="admin-link">Administrator Login</a>
+            <a href="javascript:void(0)" onclick="switchView('view-login')" class="admin-link">Administrator Login</a>
         </div>
     </section>
 
-    <!-- Login View -->
+    <!-- 2. Admin Login -->
     <section id="view-login" class="view-section">
         <div class="login-card">
-            <h2 style="text-align:center; margin-bottom:30px; font-weight: 500;">Admin Login</h2>
-            <div class="input-wrap">
-                <label>Email</label>
-                <input type="email" id="login-email" placeholder="email@example.com">
+            <h2 style="text-align:center; margin-bottom:35px; font-weight: 500;">Admin Login</h2>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="login-email" placeholder="example@email.com">
             </div>
-            <div class="input-wrap">
+            <div class="form-group">
                 <label>Password</label>
                 <input type="password" id="login-pass" placeholder="Password">
             </div>
-            <button class="btn" id="btn-login-action">เข้าสู่ระบบจัดการ</button>
-            <div id="login-status-msg" class="status-info"></div>
-            <button class="btn btn-secondary" style="margin-top:12px;" onclick="navigateTo('view-user')">กลับหน้าหลัก</button>
+            <button class="btn" id="btn-login-submit">เข้าสู่ระบบจัดการ</button>
+            <div id="login-status" class="status-box"></div>
+            <button class="btn btn-secondary" style="margin-top:15px;" onclick="switchView('view-user')">กลับหน้าหลัก</button>
         </div>
     </section>
 
-    <!-- Admin View -->
+    <!-- 3. Admin Dashboard -->
     <section id="view-admin" class="view-section">
-        <div class="admin-nav">
+        <div class="admin-header">
             <h2>จัดการฐานข้อมูล</h2>
-            <button class="btn btn-secondary" style="width:auto; padding:10px 25px;" id="btn-logout-action">ออกจากระบบ</button>
+            <button class="btn btn-secondary" style="width:auto; padding:10px 25px;" id="btn-logout">Logout</button>
         </div>
         <div id="admin-grid" class="grid"></div>
     </section>
 </div>
 
-<!-- Modal Form -->
+<!-- Modal Popup -->
 <div id="modal" class="modal">
     <div class="modal-content">
-        <h3 id="modal-title" style="margin-bottom:25px;">จัดการข้อมูลรายการ</h3>
+        <h3 id="modal-title" style="margin-bottom:30px;">จัดการข้อมูลรายการ</h3>
         
-        <div class="input-wrap">
+        <div class="form-group">
             <label>รูปภาพพรีวิว</label>
             <input type="file" id="f-img" accept="image/*">
-            <img id="p-img" style="width:100%; height:150px; object-fit:cover; border-radius:15px; margin-top:15px; display:none; border:1px solid var(--border);">
+            <img id="p-img" style="width:100%; height:160px; object-fit:cover; border-radius:15px; margin-top:15px; display:none; border:1px solid var(--border);">
         </div>
 
-        <div class="input-wrap"><label>หมวดหมู่ (EP)</label><input type="text" id="f-ep" placeholder="เช่น EP.1"></div>
-        <div class="input-wrap"><label>ชื่อรายการ</label><input type="text" id="f-title"></div>
-        <div class="input-wrap"><label>ลิงก์ Google Drive</label><input type="url" id="f-link" placeholder="https://..."></div>
+        <div class="form-group"><label>หมวดหมู่ (EP)</label><input type="text" id="f-ep"></div>
+        <div class="form-group"><label>ชื่อเทมเพลต</label><input type="text" id="f-title"></div>
+        <div class="form-group"><label>ลิงก์ Google Drive</label><input type="url" id="f-link"></div>
         
         <input type="hidden" id="f-id">
         <input type="hidden" id="f-old-url">
         
-        <div style="display:flex; gap:15px; margin-top:30px;">
+        <div style="display:flex; gap:15px; margin-top:35px;">
             <button class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
-            <button class="btn" id="btn-save-action">บันทึกข้อมูล</button>
+            <button class="btn" id="btn-save">บันทึกข้อมูล</button>
         </div>
-        <div id="modal-status-msg" class="status-info"></div>
+        <div id="modal-status" class="status-box"></div>
     </div>
 </div>
 
@@ -159,37 +380,37 @@
 
     let supabase;
 
-    // Safety timeout for iPad
-    const timer = setTimeout(() => {
-        const debug = document.getElementById('debug-msg');
-        if (debug) debug.innerHTML = '<span class="err-text">การเชื่อมต่อล่าช้า กรุณาตรวจสอบอินเทอร์เน็ตหรือรีเฟรชหน้าจอ</span>';
+    // Fail-safe Timer
+    const failSafe = setTimeout(() => {
+        const msg = document.getElementById('load-msg');
+        if (msg) msg.innerHTML = '<span class="error">การโหลดใช้เวลานานเกินไป กรุณารีเฟรชหน้าจอ</span>';
     }, 10000);
 
     window.onload = async function() {
         try {
-            if (typeof window.supabase === 'undefined') throw new Error("Supabase SDK Fail");
+            if (typeof window.supabase === 'undefined') throw new Error("SDK Error");
             supabase = window.supabase.createClient(CONFIG.URL, CONFIG.KEY);
             
-            clearTimeout(timer);
+            clearTimeout(failSafe);
             
-            // Check session
+            // Session Check
             const { data: { session } } = await supabase.auth.getSession();
-            if (session) navigateTo('view-admin');
-            else navigateTo('view-user');
+            if (session) switchView('view-admin');
+            else switchView('view-user');
 
-            setupListeners();
+            bindEvents();
             document.getElementById('loader').style.display = 'none';
         } catch (err) {
-            document.getElementById('debug-msg').innerHTML = `<span class="err-text">Error: ${err.message}</span>`;
+            document.getElementById('load-msg').innerHTML = `<span class="error">System Error: ${err.message}</span>`;
         }
     };
 
-    function setupListeners() {
-        document.getElementById('btn-login-action').addEventListener('click', handleLogin);
-        document.getElementById('btn-logout-action').addEventListener('click', handleLogout);
-        document.getElementById('btn-save-action').addEventListener('click', handleSave);
+    function bindEvents() {
+        document.getElementById('btn-login-submit').onclick = handleLogin;
+        document.getElementById('btn-logout').onclick = handleLogout;
+        document.getElementById('btn-save').onclick = handleSave;
         
-        document.getElementById('f-img').onchange = (e) => {
+        document.getElementById('f-img').onchange = function(e) {
             const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
@@ -203,54 +424,49 @@
         };
     }
 
-    function navigateTo(id) {
+    function switchView(id) {
         document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-        const target = document.getElementById(id);
-        target.classList.add('active');
-        if (id === 'view-user') fetchGuestContent();
+        document.getElementById(id).classList.add('active');
+        if (id === 'view-user') fetchUserContent();
         if (id === 'view-admin') fetchAdminContent();
     }
 
     async function handleLogin() {
         const email = document.getElementById('login-email').value;
         const pass = document.getElementById('login-pass').value;
-        const status = document.getElementById('login-status-msg');
+        const status = document.getElementById('login-status');
         
-        if (!email || !pass) { status.innerHTML = '<span class="err-text">กรุณาระบุข้อมูลให้ครบ</span>'; return; }
-
-        status.innerHTML = 'กำลังตรวจสอบข้อมูล...';
+        if (!email || !pass) { status.innerHTML = '<span class="error">กรุณากรอกข้อมูลให้ครบ</span>'; return; }
+        
+        status.innerHTML = 'Verifying...';
         const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-
-        if (error) {
-            status.innerHTML = `<span class="err-text">ล็อกอินล้มเหลว: ${error.message}</span>`;
-        } else {
-            status.innerHTML = '<span class="success-text">เข้าสู่ระบบสำเร็จ</span>';
-            setTimeout(() => navigateTo('view-admin'), 500);
-        }
+        
+        if (error) status.innerHTML = `<span class="error">${error.message}</span>`;
+        else switchView('view-admin');
     }
 
     async function handleLogout() {
         await supabase.auth.signOut();
-        navigateTo('view-user');
+        switchView('view-user');
     }
 
-    async function fetchGuestContent() {
+    async function fetchUserContent() {
         const area = document.getElementById('user-grid');
-        area.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">Loading Database...</p>';
+        area.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Loading Database...</p>';
         
         const { data, error } = await supabase.from('templates').select('*').order('ep', { ascending: true });
-        if (error) return area.innerHTML = `<p class="err-text">Error: ${error.message}</p>`;
+        if (error) return area.innerHTML = `<p class="error">Error: ${error.message}</p>`;
         
         if (!data || data.length === 0) {
-            area.innerHTML = '<p style="text-align:center; grid-column: 1/-1; opacity:0.5;">ยังไม่มีรายการข้อมูล</p>';
+            area.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.5;">ยังไม่มีข้อมูล</p>';
             return;
         }
 
         area.innerHTML = data.map(item => `
             <div class="card">
                 <img src="${item.image}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300/1e293b/fff?text=No+Image'">
-                <p style="font-size:0.75rem; color:var(--blue-accent); font-weight:600; text-transform:uppercase; margin-bottom:5px;">${item.ep}</p>
-                <h4 style="margin-bottom:20px; font-weight:400;">${item.title}</h4>
+                <p style="font-size:0.75rem; color:var(--blue); font-weight:600; text-transform:uppercase; margin-bottom:5px;">${item.ep}</p>
+                <h4 class="card-title">${item.title}</h4>
                 <a href="${item.link}" target="_blank" class="btn">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                     เข้าใช้งานเทมเพลต
@@ -261,34 +477,27 @@
 
     async function fetchAdminContent() {
         const grid = document.getElementById('admin-grid');
-        grid.innerHTML = '<p style="grid-column: 1/-1;">Synchronizing...</p>';
+        grid.innerHTML = '<p style="grid-column: 1/-1;">Synchronizing Grid...</p>';
         
         const { data, error } = await supabase.from('templates').select('*').order('created_at', { ascending: false });
         if (error) return;
 
-        grid.innerHTML = `
-            <div class="card add-card-trigger" id="open-modal-add">
-                <svg width="45" height="45" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <p style="margin-top:15px;">เพิ่มข้อมูลรายการใหม่</p>
-            </div>
-        `;
-        
-        document.getElementById('open-modal-add').onclick = () => openModal();
+        grid.innerHTML = `<div class="card add-card" onclick="openModal()">+ เพิ่มรายการข้อมูล</div>`;
 
         data.forEach(item => {
             const div = document.createElement('div');
             div.className = 'card';
             div.innerHTML = `
-                <div class="action-overlay">
-                    <button class="circle-btn btn-edit">Edit</button>
-                    <button class="circle-btn btn-del" style="color:#f87171">Del</button>
+                <div class="action-btns">
+                    <button class="icon-btn btn-edit">Edit</button>
+                    <button class="icon-btn btn-del" style="color:#f87171">Del</button>
                 </div>
                 <img src="${item.image}" class="card-img">
-                <p style="font-size:0.75rem; color:var(--blue-accent); font-weight:600;">${item.ep}</p>
+                <p style="font-size:0.75rem; color:var(--blue); font-weight:600;">${item.ep}</p>
                 <p style="font-size:0.9rem; margin-top:5px;">${item.title}</p>
             `;
             div.querySelector('.btn-edit').onclick = () => openModal(item);
-            div.querySelector('.btn-del').onclick = () => processDelete(item.id);
+            div.querySelector('.btn-del').onclick = () => handleDelete(item.id);
             grid.appendChild(div);
         });
     }
@@ -299,9 +508,9 @@
         document.getElementById('f-ep').value = item ? item.ep : '';
         document.getElementById('f-link').value = item ? item.link : '';
         document.getElementById('f-old-url').value = item ? item.image : '';
-        const preview = document.getElementById('p-img');
-        if (item) { preview.src = item.image; preview.style.display = 'block'; } 
-        else { preview.style.display = 'none'; }
+        const p = document.getElementById('p-img');
+        if (item) { p.src = item.image; p.style.display = 'block'; } 
+        else { p.style.display = 'none'; }
         
         document.getElementById('modal-title').innerText = item ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูลใหม่';
         document.getElementById('modal').classList.add('active');
@@ -309,28 +518,31 @@
 
     function closeModal() {
         document.getElementById('modal').classList.remove('active');
-        document.getElementById('modal-status-msg').innerHTML = '';
+        document.getElementById('modal-status').innerHTML = '';
         document.getElementById('f-img').value = '';
     }
 
     async function handleSave() {
         const id = document.getElementById('f-id').value;
         const file = document.getElementById('f-img').files[0];
-        const status = document.getElementById('modal-status-msg');
-        const btn = document.getElementById('btn-save-action');
+        const status = document.getElementById('modal-status');
+        const btn = document.getElementById('btn-save');
 
-        if (!id && !file) { status.innerHTML = '<span class="err-text">กรุณาเลือกรูปภาพ</span>'; return; }
+        if (!id && !file) { status.innerHTML = '<span class="error">กรุณาเลือกไฟล์ภาพ</span>'; return; }
         
-        status.innerHTML = 'ระบบกำลังบันทึกข้อมูล...';
+        status.innerHTML = 'กำลังประมวลผลข้อมูล...';
         btn.disabled = true;
 
         try {
             let imageUrl = document.getElementById('f-old-url').value;
             if (file) {
-                const name = Date.now() + "_" + file.name.replace(/\s/g, '');
-                const { error: upErr } = await supabase.storage.from('images').upload(name, file);
+                // 🛑 ล้างชื่อไฟล์ภาษาไทย/อักขระพิเศษเพื่อป้องกัน Invalid Key Error
+                const ext = file.name.split('.').pop();
+                const safeName = Date.now() + "_" + Math.random().toString(36).substring(2, 9) + "." + ext;
+                
+                const { error: upErr } = await supabase.storage.from('images').upload(safeName, file);
                 if (upErr) throw upErr;
-                imageUrl = supabase.storage.from('images').getPublicUrl(name).data.publicUrl;
+                imageUrl = supabase.storage.from('images').getPublicUrl(safeName).data.publicUrl;
             }
 
             const payload = { 
@@ -349,19 +561,20 @@
             closeModal();
             fetchAdminContent();
         } catch (e) {
-            status.innerHTML = `<span class="err-text">Error: ${e.message}</span>`;
+            status.innerHTML = `<span class="error">Error: ${e.message}</span>`;
         } finally {
             btn.disabled = false;
         }
     }
 
-    async function processDelete(id) {
-        if (!confirm("คุณต้องการลบรายการนี้ใช่หรือไม่?")) return;
+    async function handleDelete(id) {
+        if (!confirm("ต้องการลบรายการนี้ใช่ไหม?")) return;
         const { error } = await supabase.from('templates').delete().eq('id', id);
-        if (error) alert("Error: " + error.message);
+        if (error) alert(error.message);
         else fetchAdminContent();
     }
 </script>
+
 </body>
 </html>
 
