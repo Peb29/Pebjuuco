@@ -3,159 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PinkJu Style Management System</title>
+    <title>PinkJu Style System</title>
     <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <!-- นำเข้า Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-color: #1e293b;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --pink-accent: #f472b6;
-            --blue-accent: #38bdf8;
-            --purple-accent: #c084fc;
-            --text-main: #ffffff;
-            --text-dim: #94a3b8;
+            --bg: #0f172a; --card: #1e293b; --border: rgba(255, 255, 255, 0.1);
+            --pink: #f472b6; --blue: #38bdf8; --purple: #c084fc; --white: #ffffff;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Mitr', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--bg-color); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
-        .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+        body { background: var(--bg); color: var(--white); min-height: 100vh; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
         
-        /* Loading Screen */
-        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
-        .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--pink-accent); border-radius: 50%; animation: spin 1s linear infinite; }
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--pink); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        #debug-msg { margin-top: 20px; font-size: 0.8rem; color: var(--blue-accent); text-align: center; }
 
-        /* UI Header */
-        header { text-align: center; padding: 50px 20px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 30px; margin-bottom: 40px; }
-        h1 { font-size: 1.6rem; background: linear-gradient(90deg, var(--pink-accent), var(--blue-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.5; font-weight: 600; }
-        .subtitle { color: var(--text-dim); font-size: 0.85rem; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Sections */
+        header { text-align: center; padding: 40px 15px; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 25px; margin-bottom: 30px; }
+        h1 { font-size: 1.6rem; background: linear-gradient(90deg, var(--pink), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.5; font-weight: 600; }
+        
         .view-section { display: none; }
         .view-section.active { display: block; }
-        .section-title { font-size: 1.3rem; margin: 40px 0 20px; border-left: 5px solid var(--pink-accent); padding-left: 15px; }
 
-        /* Grid & Cards */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
-        .card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 24px; padding: 18px; display: flex; flex-direction: column; transition: 0.3s; position: relative; }
-        .card:hover { transform: translateY(-5px); border-color: var(--purple-accent); }
-        .card-img { width: 100%; height: 200px; object-fit: cover; border-radius: 16px; background: #000; margin-bottom: 20px; border: 1px solid var(--border-color); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 15px; display: flex; flex-direction: column; position: relative; }
+        .card-img { width: 100%; height: 180px; object-fit: cover; border-radius: 12px; background: #000; margin-bottom: 15px; }
         
-        /* Buttons */
         .btn { 
-            width: 100%; padding: 14px; border-radius: 15px; border: none; cursor: pointer;
-            background: linear-gradient(45deg, var(--pink-accent), var(--purple-accent)); color: #fff;
-            font-weight: 600; font-size: 0.95rem; transition: 0.2s; 
-            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 14px; border-radius: 12px; border: none; cursor: pointer;
+            background: linear-gradient(45deg, var(--pink), var(--purple)); color: #fff;
+            font-weight: 600; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;
             touch-action: manipulation;
         }
-        .btn:active { transform: scale(0.97); opacity: 0.9; }
-        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); }
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-secondary { background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
 
-        /* Login Box */
-        .login-card { max-width: 400px; margin: 50px auto; padding: 35px; background: var(--card-color); border-radius: 30px; border: 1px solid var(--border-color); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
         .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; }
-        input { width: 100%; padding: 14px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 12px; color: #fff; outline: none; font-size: 1rem; }
-        input:focus { border-color: var(--blue-accent); }
+        .input-group label { display: block; font-size: 0.8rem; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; }
+        input { width: 100%; padding: 14px; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; color: #fff; outline: none; }
 
-        /* Admin Dashboard */
-        .admin-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .add-card { border: 2.5px dashed var(--pink-accent); background: transparent; height: 300px; justify-content: center; color: var(--pink-accent); cursor: pointer; }
-        .action-layer { position: absolute; top: 12px; right: 12px; display: flex; gap: 8px; }
-        .btn-icon { width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.8); color: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); cursor: pointer; }
+        .admin-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .add-card { border: 2px dashed var(--pink); background: transparent; height: 280px; justify-content: center; color: var(--pink); cursor: pointer; }
+        .action-btns { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; }
+        .icon-btn { width: 35px; height: 35px; border-radius: 50%; background: #000; color: #fff; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; }
 
-        /* Modal */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-content { background: var(--card-color); padding: 30px; border-radius: 30px; width: 100%; max-width: 480px; position: relative; border: 1px solid var(--purple-accent); }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 25px; width: 100%; max-width: 450px; position: relative; }
 
-        /* Footer */
-        .footer { text-align: center; margin-top: 60px; padding: 30px; opacity: 0.3; border-top: 1px solid var(--border-color); }
-        .admin-link { color: var(--text-dim); text-decoration: none; font-size: 0.75rem; }
-
-        /* Status Text */
-        .status-text { font-size: 0.8rem; text-align: center; margin-top: 15px; min-height: 1.2rem; }
-        .text-error { color: #f87171; }
-        .text-success { color: #4ade80; }
+        .status-msg { margin-top: 15px; font-size: 0.8rem; text-align: center; color: var(--blue); min-height: 1.2rem; }
+        .footer { text-align: center; margin-top: 50px; padding: 20px; opacity: 0.2; }
     </style>
 </head>
 <body>
 
-<!-- Loader -->
 <div id="loader">
     <div class="spinner"></div>
-    <div id="debug-msg">Starting System...</div>
+    <p style="margin-top:15px; font-size:0.8rem; color:var(--blue);">Loading System...</p>
 </div>
 
 <div class="container">
     <header>
         <h1>เว็บไซต์สำหรับสมาชิกภายในคอร์สสอนทำเว็บสไตล์พิ้งจูเท่านั้น</h1>
-        <p class="subtitle">Premium Template Database Access Control</p>
+        <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 10px;">Membership Portal System</p>
     </header>
 
-    <!-- 1. หน้าสมาชิก (User View) -->
     <section id="view-user" class="view-section">
-        <div id="user-grid" class="grid"></div>
-        <div class="footer">
-            <a href="javascript:void(0)" onclick="switchSection('view-login')" class="admin-link">Administrator Login</a>
-        </div>
+        <div id="user-content" class="grid"></div>
+        <div class="footer"><a href="javascript:void(0)" onclick="switchView('view-login')" style="color:#94a3b8; font-size:0.7rem; text-decoration:none;">Admin Login</a></div>
     </section>
 
-    <!-- 2. หน้าล็อกอิน (Login View) -->
     <section id="view-login" class="view-section">
-        <div class="login-card">
-            <h2 style="text-align:center; margin-bottom:30px; font-weight: 500;">Admin Login</h2>
-            <div class="input-group">
-                <label>Email Address</label>
-                <input type="email" id="login-email" placeholder="email@example.com">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="login-pass" placeholder="Password">
-            </div>
-            <button class="btn" onclick="processLogin()">เข้าสู่ระบบจัดการ</button>
-            <div id="login-status" class="status-text"></div>
-            <button class="btn btn-secondary" style="margin-top:10px;" onclick="switchSection('view-user')">กลับไปหน้ารวมเทมเพลต</button>
+        <div style="max-width:400px; margin:0 auto; background:var(--card); padding:30px; border-radius:25px;">
+            <h2 style="text-align:center; margin-bottom:25px;">Admin Login</h2>
+            <div class="input-group"><label>Email</label><input type="email" id="login-email"></div>
+            <div class="input-group"><label>Password</label><input type="password" id="login-password"></div>
+            <button class="btn" onclick="handleLogin()">เข้าสู่ระบบจัดการ</button>
+            <div id="login-status" class="status-msg"></div>
+            <button class="btn btn-secondary" style="margin-top:10px;" onclick="switchView('view-user')">กลับหน้าหลัก</button>
         </div>
     </section>
 
-    <!-- 3. หน้าจัดการ (Admin View) -->
     <section id="view-admin" class="view-section">
-        <div class="admin-nav">
-            <h2>ระบบจัดการเทมเพลต</h2>
-            <button class="btn btn-secondary" style="width:auto; padding:8px 20px;" onclick="processLogout()">ออกจากระบบ</button>
+        <div class="admin-header">
+            <h3>จัดการเทมเพลต</h3>
+            <button class="btn btn-secondary" style="width:auto; padding:8px 20px;" onclick="handleLogout()">Logout</button>
         </div>
         <div id="admin-grid" class="grid"></div>
     </section>
 </div>
 
-<!-- Modal Form -->
 <div id="modal" class="modal">
     <div class="modal-content">
-        <h3 id="modal-title" style="margin-bottom:25px;">จัดการข้อมูลรายการ</h3>
-        
+        <h3 id="modal-title" style="margin-bottom:20px;">เพิ่มข้อมูล</h3>
         <div class="input-group">
-            <label>อัปโหลดรูปภาพพรีวิว</label>
+            <label>รูปภาพพรีวิว</label>
             <input type="file" id="f-img" accept="image/*">
-            <img id="p-img" style="width:100%; height:140px; object-fit:cover; border-radius:12px; margin-top:15px; display:none; border:1px solid var(--border-color);">
+            <img id="p-img" style="width:100%; height:120px; object-fit:cover; border-radius:10px; margin-top:10px; display:none;">
         </div>
-
-        <div class="input-group"><label>หมวดหมู่ (EP)</label><input type="text" id="f-ep" placeholder="เช่น EP.1"></div>
-        <div class="input-group"><label>ชื่อรายการเทมเพลต</label><input type="text" id="f-title"></div>
-        <div class="input-group"><label>ลิงก์ Google Drive</label><input type="url" id="f-link" placeholder="https://..."></div>
+        <div class="input-group"><label>EP (หมวดหมู่)</label><input type="text" id="f-ep"></div>
+        <div class="input-group"><label>ชื่อเทมเพลต</label><input type="text" id="f-title"></div>
+        <div class="input-group"><label>ลิงก์ Google Drive</label><input type="url" id="f-link"></div>
         
-        <input type="hidden" id="f-id">
-        <input type="hidden" id="f-old-url">
+        <input type="hidden" id="f-id"><input type="hidden" id="f-old">
         
-        <div style="display:flex; gap:12px; margin-top:30px;">
+        <div style="display:flex; gap:10px; margin-top:20px;">
             <button class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
-            <button class="btn" id="btn-save" onclick="processSave()">บันทึกข้อมูล</button>
+            <button class="btn" id="btn-save" onclick="handleSave()">บันทึกข้อมูล</button>
         </div>
-        <div id="modal-status" class="status-text"></div>
+        <div id="modal-status" class="status-msg"></div>
     </div>
 </div>
 
@@ -167,208 +124,137 @@
 
     let supabase;
 
-    // ระบบป้องกันการโหลดค้าง
-    const timeout = setTimeout(() => {
-        document.getElementById('debug-msg').innerHTML = '<span class="text-error">ระบบใช้เวลาโหลดนานเกินไป กรุณารีเฟรชหน้าเว็บน้า</span>';
-    }, 8000);
-
     window.onload = async function() {
-        const debug = document.getElementById('debug-msg');
         try {
-            if (typeof window.supabase === 'undefined') throw new Error("ไม่สามารถเชื่อมต่อ SDK ของระบบได้");
-            
             supabase = window.supabase.createClient(CONFIG.URL, CONFIG.KEY);
-            debug.innerText = "Connecting to Secure Server...";
-
-            clearTimeout(timeout);
-            
             const { data: { session } } = await supabase.auth.getSession();
-            if (session) switchSection('view-admin');
-            else switchSection('view-user');
-
-            setupImagePreview();
+            if (session) switchView('view-admin'); else switchView('view-user');
+            
+            document.getElementById('f-img').onchange = e => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = ex => { const p = document.getElementById('p-img'); p.src = ex.target.result; p.style.display = 'block'; };
+                    reader.readAsDataURL(file);
+                }
+            };
             document.getElementById('loader').style.display = 'none';
-
-        } catch (err) {
-            debug.innerHTML = `<span class="text-error">Error: ${err.message}</span>`;
-        }
+        } catch (e) { alert("Error: " + e.message); }
     };
 
-    function switchSection(id) {
+    function switchView(id) {
         document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if (id === 'view-user') fetchUserView();
-        if (id === 'view-admin') fetchAdminView();
+        if (id === 'view-user') loadUser(); if (id === 'view-admin') loadAdmin();
     }
 
-    async function processLogin() {
-        const email = document.getElementById('login-email').value;
-        const pass = document.getElementById('login-pass').value;
-        const status = document.getElementById('login-status');
-        
-        if (!email || !pass) { status.innerHTML = '<span class="text-error">กรุณาระบุข้อมูลให้ครบถ้วน</span>'; return; }
-
-        status.innerHTML = 'กำลังตรวจสอบสิทธิ์...';
-        const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-
-        if (error) {
-            status.innerHTML = `<span class="text-error">เข้าสู่ระบบไม่สำเร็จ: ${error.message}</span>`;
-        } else {
-            status.innerHTML = '<span class="text-success">ยินดีต้อนรับ กำลังเข้าสู่ระบบ...</span>';
-            setTimeout(() => switchSection('view-admin'), 800);
-        }
+    async function handleLogin() {
+        const e = document.getElementById('login-email').value;
+        const p = document.getElementById('login-password').value;
+        const s = document.getElementById('login-status');
+        if(!e || !p) return s.innerText = "กรุณากรอกข้อมูลให้ครบ";
+        s.innerText = "กำลังตรวจสอบ...";
+        const { error } = await supabase.auth.signInWithPassword({ email: e, password: p });
+        if (error) s.innerText = "ผิดพลาด: " + error.message; else switchView('view-admin');
     }
 
-    async function processLogout() {
-        await supabase.auth.signOut();
-        switchSection('view-user');
-    }
+    async function handleLogout() { await supabase.auth.signOut(); switchView('view-user'); }
 
-    async function fetchUserView() {
-        const area = document.getElementById('user-grid');
-        area.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">Loading Database...</p>';
-        
+    async function loadUser() {
         const { data, error } = await supabase.from('templates').select('*').order('ep', { ascending: true });
-        if (error) return area.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
-        
-        if (data.length === 0) {
-            area.innerHTML = '<p style="text-align:center; grid-column: 1/-1; opacity:0.5;">ยังไม่มีรายการข้อมูลในขณะนี้</p>';
-            return;
-        }
-
-        area.innerHTML = data.map(item => `
+        if (error) return;
+        document.getElementById('user-content').innerHTML = data.map(i => `
             <div class="card">
-                <img src="${item.image}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300/1e293b/fff?text=No+Image'">
-                <p style="font-size:0.75rem; color:var(--blue-accent); font-weight:600; text-transform:uppercase; margin-bottom:5px;">${item.ep}</p>
-                <h4 style="margin-bottom:18px; font-weight:400; color:#f1f5f9;">${item.title}</h4>
-                <a href="${item.link}" target="_blank" class="btn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    เข้าใช้งานเทมเพลต
-                </a>
+                <img src="${i.image}" class="card-img" onerror="this.src='https://via.placeholder.com/300x200'">
+                <p style="font-size:0.9rem; margin-bottom:15px; color:#f1f5f9;">${i.title}</p>
+                <a href="${i.link}" target="_blank" class="btn">เข้าใช้งานเทมเพลต</a>
             </div>
-        `).join('');
+        `).join('') || '<p style="text-align:center;width:100%;opacity:0.5">ไม่มีข้อมูล</p>';
     }
 
-    async function fetchAdminView() {
-        const grid = document.getElementById('admin-grid');
-        grid.innerHTML = '<p style="grid-column: 1/-1;">Loading Management Grid...</p>';
-        
+    async function loadAdmin() {
         const { data, error } = await supabase.from('templates').select('*').order('created_at', { ascending: false });
         if (error) return;
-
-        grid.innerHTML = `
-            <div class="card add-card" onclick="openModal()">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                <p style="margin-top:15px; font-weight:600;">เพิ่มข้อมูลรายการใหม่</p>
-            </div>
-        `;
-
-        data.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'card';
-            div.innerHTML = `
-                <div class="action-layer">
-                    <button class="btn-icon edit-trigger">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                    </button>
-                    <button class="btn-icon del-trigger" style="color:#f87171">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                    </button>
+        const grid = document.getElementById('admin-grid');
+        grid.innerHTML = '<div class="card add-card" onclick="openModal()">+ เพิ่มรายการ</div>';
+        data.forEach(i => {
+            const d = document.createElement('div');
+            d.className = 'card';
+            d.innerHTML = `
+                <div class="action-btns">
+                    <button class="icon-btn" onclick='openModal(${JSON.stringify(i)})'>Edit</button>
+                    <button class="icon-btn" onclick="handleDelete('${i.id}')" style="color:#f87171">Del</button>
                 </div>
-                <img src="${item.image}" class="card-img" onerror="this.src='https://via.placeholder.com/200'">
-                <p style="font-size:0.75rem; color:var(--blue-accent); font-weight:600;">${item.ep}</p>
-                <p style="font-size:0.9rem; margin-top:5px;">${item.title}</p>
+                <img src="${i.image}" class="card-img">
+                <p style="font-size:0.75rem; color:var(--blue); font-weight:600;">${i.ep}</p>
+                <p style="font-size:0.85rem;">${i.title}</p>
             `;
-            div.querySelector('.edit-trigger').onclick = () => openModal(item);
-            div.querySelector('.del-trigger').onclick = () => processDelete(item.id);
-            grid.appendChild(div);
+            grid.appendChild(d);
         });
     }
 
-    function setupImagePreview() {
-        document.getElementById('f-img').onchange = (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = ex => {
-                    const p = document.getElementById('p-img');
-                    p.src = ex.target.result;
-                    p.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-    }
-
-    function openModal(item = null) {
-        document.getElementById('f-id').value = item ? item.id : '';
-        document.getElementById('f-title').value = item ? item.title : '';
-        document.getElementById('f-ep').value = item ? item.ep : '';
-        document.getElementById('f-link').value = item ? item.link : '';
-        document.getElementById('f-old-url').value = item ? item.image : '';
-        const preview = document.getElementById('p-img');
-        if (item) { preview.src = item.image; preview.style.display = 'block'; } 
-        else { preview.style.display = 'none'; }
-        
-        document.getElementById('modal-title').innerText = item ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูลใหม่';
+    window.openModal = function(i = null) {
+        document.getElementById('f-id').value = i ? i.id : '';
+        document.getElementById('f-title').value = i ? i.title : '';
+        document.getElementById('f-ep').value = i ? i.ep : '';
+        document.getElementById('f-link').value = i ? i.link : '';
+        document.getElementById('f-old').value = i ? i.image : '';
+        const p = document.getElementById('p-img');
+        if (i) { p.src = i.image; p.style.display = 'block'; } else { p.style.display = 'none'; }
+        document.getElementById('modal-status').innerText = '';
         document.getElementById('modal').classList.add('active');
-    }
+    };
 
-    function closeModal() {
-        document.getElementById('modal').classList.remove('active');
-        document.getElementById('modal-status').innerHTML = '';
-    }
+    function closeModal() { document.getElementById('modal').classList.remove('active'); }
 
-    async function processSave() {
+    async function handleSave() {
         const id = document.getElementById('f-id').value;
         const file = document.getElementById('f-img').files[0];
         const status = document.getElementById('modal-status');
         const btn = document.getElementById('btn-save');
 
-        if (!id && !file) return status.innerHTML = '<span class="text-error">กรุณาเลือกไฟล์ภาพ</span>';
+        if(!id && !file) return status.innerText = "กรุณาเลือกรูปภาพ";
         
-        status.innerHTML = 'กำลังประมวลผลข้อมูล...';
         btn.disabled = true;
+        status.innerText = "กำลังประมวลผล...";
 
         try {
-            let imageUrl = document.getElementById('f-old-url').value;
+            let imgUrl = document.getElementById('f-old').value;
             if (file) {
-                const fileName = Date.now() + "_" + file.name.replace(/\s/g, '');
-                const { error: upErr } = await supabase.storage.from('images').upload(fileName, file);
-                if (upErr) throw upErr;
-                imageUrl = supabase.storage.from('images').getPublicUrl(fileName).data.publicUrl;
+                const name = Date.now() + "_" + file.name.replace(/\s/g, '');
+                const { error: upErr } = await supabase.storage.from('images').upload(name, file);
+                if (upErr) throw new Error("อัปโหลดรูปไม่สำเร็จ: " + upErr.message);
+                imgUrl = supabase.storage.from('images').getPublicUrl(name).data.publicUrl;
             }
 
             const payload = { 
                 title: document.getElementById('f-title').value, 
                 ep: document.getElementById('f-ep').value, 
                 link: document.getElementById('f-link').value, 
-                image: imageUrl 
+                image: imgUrl 
             };
 
-            const { error } = id ? 
+            const { error: dbErr } = id ? 
                 await supabase.from('templates').update(payload).eq('id', id) : 
                 await supabase.from('templates').insert([payload]);
 
-            if (error) throw error;
+            if (dbErr) throw new Error("บันทึกข้อมูลไม่สำเร็จ: " + dbErr.message);
             
-            closeModal();
-            fetchAdminView();
-        } catch (e) {
-            status.innerHTML = `<span class="text-error">Fail: ${e.message}</span>`;
+            closeModal(); loadAdmin();
+        } catch (err) {
+            status.innerText = "Error: " + err.message;
+            alert(err.message);
         } finally {
             btn.disabled = false;
         }
     }
 
-    async function processDelete(id) {
-        if (!confirm("คุณแน่ใจหรือไม่ที่จะลบรายการนี้ออกจากระบบ?")) return;
-        const { error } = await supabase.from('templates').delete().eq('id', id);
-        if (error) alert("Error: " + error.message);
-        else fetchAdminView();
+    async function handleDelete(id) {
+        if (!confirm("ลบรายการนี้ใช่ไหม?")) return;
+        await supabase.from('templates').delete().eq('id', id);
+        loadAdmin();
     }
 </script>
-
 </body>
 </html>
 
