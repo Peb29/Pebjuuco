@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PinkJu Style | Member Templates</title>
+    <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a; --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1);
+            --pink: #f472b6; --blue: #38bdf8; --purple: #c084fc; --text-muted: #94a3b8;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Mitr', sans-serif; }
+        body { background: var(--bg-gradient); color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1rem; flex: 1; width: 100%; }
+        
+        .hero { text-align: center; padding: 3.5rem 1.5rem; background: var(--glass); backdrop-filter: blur(15px); border: 1px solid var(--glass-border); border-radius: 30px; margin-bottom: 3.5rem; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
+        .badge { display: inline-flex; align-items: center; gap: 8px; padding: 0.6rem 1.4rem; background: rgba(244, 114, 182, 0.15); border: 1px solid var(--pink); border-radius: 999px; color: var(--pink); font-size: 0.8rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
+        h1 { font-size: 1.8rem; background: linear-gradient(to right, var(--pink), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.5; font-weight: 600; }
+        .subtitle { color: var(--text-muted); margin-top: 15px; font-size: 0.95rem; }
+
+        .ep-section { margin-bottom: 4rem; }
+        .ep-title { display: flex; align-items: center; gap: 12px; font-size: 1.6rem; margin-bottom: 2rem; color: #fff; border-left: 5px solid var(--pink); padding-left: 15px; font-weight: 500; }
+        
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
+        .card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 24px; padding: 1.2rem; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; height: 100%; }
+        .card:hover { transform: translateY(-10px); border-color: var(--purple); box-shadow: 0 15px 35px rgba(192, 132, 252, 0.25); }
+        .card-img { width: 100%; height: 220px; object-fit: cover; border-radius: 18px; margin-bottom: 1.2rem; background: #1e293b; border: 1px solid rgba(255,255,255,0.05); }
+        .card-title { font-size: 1.1rem; margin-bottom: 1.5rem; font-weight: 400; color: #f1f5f9; }
+        
+        .btn-glow { margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0.9rem; background: linear-gradient(45deg, var(--pink), var(--purple)); color: white; text-decoration: none; border-radius: 999px; font-weight: 500; transition: 0.3s; box-shadow: 0 4px 15px rgba(244, 114, 182, 0.3); }
+        .btn-glow:hover { transform: scale(1.03); box-shadow: 0 0 25px rgba(244, 114, 182, 0.7); }
+        
+        #status-area { text-align: center; padding: 5rem 2rem; color: var(--blue); }
+        .spinner { width: 45px; height: 45px; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
+        .footer { text-align: center; padding: 3rem; opacity: 0.3; border-top: 1px solid var(--glass-border); margin-top: 4rem; }
+        .admin-link { color: #94a3b8; text-decoration: none; font-size: 0.75rem; transition: 0.3s; }
+        .admin-link:hover { color: var(--pink); opacity: 1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="hero">
+            <div class="badge">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                Exclusive Member Only
+            </div>
+            <h1>เว็บไซต์สำหรับสมาชิกภายในคอร์สสอนทำเว็บสไตล์ PinkJu เท่านั้น</h1>
+            <p class="subtitle">เลือกเทมเพลตที่ใช่ นำไปใช้งานได้เลย!!</p>
+        </header>
+
+        <div id="status-area">
+            <div class="spinner"></div>
+            <p>กำลังดาวน์โหลดข้อมูลระบบ</p>
+        </div>
+        <main id="content-grid"></main>
+    </div>
+
+    <footer class="footer"><a href="admin.html" class="admin-link">Admin Access Control</a></footer>
+
+    <script>
+        const SUPABASE_URL = 'https://fwcwwmnrxecsxjgxephn.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ3Y3d3bW5yeGVjc3hqZ3hlcGhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzNjg4NjMsImV4cCI6MjA5MDk0NDg2M30.aduDIUVyy92BC6uRFBaUaPH2N9tmQlweEk6zWb07GCY';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function fetchTemplates() {
+            const display = document.getElementById('content-grid');
+            const status = document.getElementById('status-area');
+
+            try {
+                const { data, error } = await supabase.from('templates').select('*').order('ep', { ascending: true });
+                if (error) throw error;
+
+                status.style.display = 'none';
+                if (!data || data.length === 0) {
+                    display.innerHTML = '<p style="text-align:center; opacity:0.5; padding: 4rem;">ไม่มีข้อมูลในระบบ</p>';
+                    return;
+                }
+
+                const grouped = data.reduce((acc, item) => {
+                    const ep = item.ep || 'GENERAL';
+                    if (!acc[ep]) acc[ep] = [];
+                    acc[ep].push(item);
+                    return acc;
+                }, {});
+
+                let html = '';
+                for (const [ep, items] of Object.entries(grouped)) {
+                    html += `<section class="ep-section"><h2 class="ep-title">${ep}</h2><div class="grid">`;
+                    items.forEach(item => {
+                        html += `
+                            <div class="card">
+                                <img src="${item.image}" class="card-img" alt="template" onerror="this.src='https://via.placeholder.com/400x300/1e293b/fff?text=No+Preview'">
+                                <h3 class="card-title">${item.title}</h3>
+                                <a href="${item.link}" target="_blank" class="btn-glow">
+                                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                    เข้าใช้งานเทมเพลต
+                                </a>
+                            </div>`;
+                    });
+                    html += `</div></section>`;
+                }
+                display.innerHTML = html;
+            } catch (err) {
+                status.innerHTML = `<div style="color:#ef4444; border: 1px solid #ef4444; padding: 1rem; border-radius: 15px;">ระบบขัดข้อง: ${err.message}</div>`;
+            }
+        }
+
+        supabase.channel('public:templates').on('postgres_changes', { event: '*', schema: 'public', table: 'templates' }, () => fetchTemplates()).subscribe();
+        window.addEventListener('DOMContentLoaded', fetchTemplates);
+    </script>
+</body>
+</html>
+
