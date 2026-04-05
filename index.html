@@ -3,372 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PinkJu Style System</title>
+    <title>PinkJu Style Management System</title>
     <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7"></script>
     <style>
         :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --border: rgba(255, 255, 255, 0.1);
-            --pink: #f472b6;
-            --blue: #38bdf8;
-            --purple: #c084fc;
-            --white: #ffffff;
+            --bg-color: #0f172a;
+            --card-color: #1e293b;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --pink-accent: #f472b6;
+            --blue-accent: #38bdf8;
+            --purple-accent: #c084fc;
+            --text-main: #ffffff;
             --text-dim: #94a3b8;
         }
-
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            font-family: 'Mitr', sans-serif; 
-            -webkit-tap-highlight-color: transparent; 
-        }
-
-        body { 
-            background: var(--bg); 
-            color: var(--white); 
-            min-height: 100vh; 
-            overflow-x: hidden; 
-        }
-
-        .container { 
-            max-width: 1100px; 
-            margin: 0 auto; 
-            padding: 20px; 
-        }
-
-        /* Initial Loading */
-        #loader { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: var(--bg); 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            z-index: 9999; 
-        }
-
-        .spinner { 
-            width: 45px; 
-            height: 45px; 
-            border: 4px solid var(--border); 
-            border-top-color: var(--pink); 
-            border-radius: 50%; 
-            animation: spin 1s linear infinite; 
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Mitr', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg-color); color: var(--text-main); min-height: 100vh; overflow-x: hidden; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 15px; }
+        
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-color); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        .spinner { width: 40px; height: 40px; border: 4px solid var(--border-color); border-top-color: var(--pink-accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        #debug-msg { margin-top: 15px; font-size: 0.8rem; color: var(--blue-accent); text-align: center; }
 
-        /* Header UI */
-        header { 
-            text-align: center; 
-            padding: 60px 20px; 
-            background: rgba(255,255,255,0.02); 
-            border: 1px solid var(--border); 
-            border-radius: 35px; 
-            margin-bottom: 40px; 
-        }
+        header { text-align: center; padding: 30px 15px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 20px; margin-bottom: 25px; }
+        h1 { font-size: 1.3rem; background: linear-gradient(90deg, var(--pink-accent), var(--blue-accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; line-height: 1.4; font-weight: 600; }
+        .subtitle { color: var(--text-dim); font-size: 0.8rem; margin-top: 8px; text-transform: uppercase; letter-spacing: 1px; }
 
-        h1 { 
-            font-size: 1.7rem; 
-            background: linear-gradient(90deg, var(--pink), var(--blue)); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            line-height: 1.5; 
-            font-weight: 600; 
-        }
+        /* Search & Filter */
+        .controls-area { margin-bottom: 25px; }
+        .search-box { position: relative; margin-bottom: 15px; }
+        .search-box input { width: 100%; padding: 12px 15px 12px 40px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 12px; color: #fff; font-size: 0.95rem; outline: none; transition: 0.3s; }
+        .search-box input:focus { border-color: var(--pink-accent); }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-dim); }
+        
+        .filter-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+        .filter-scroll::-webkit-scrollbar { display: none; }
+        .filter-btn { padding: 6px 15px; background: var(--card-color); border: 1px solid var(--border-color); border-radius: 15px; color: var(--text-dim); cursor: pointer; white-space: nowrap; font-size: 0.85rem; }
+        .filter-btn.active { background: linear-gradient(45deg, var(--pink-accent), var(--purple-accent)); color: #fff; border-color: transparent; }
 
-        .subtitle { 
-            color: var(--text-dim); 
-            font-size: 0.8rem; 
-            margin-top: 12px; 
-            text-transform: uppercase; 
-            letter-spacing: 2px; 
-        }
-
-        /* View Control */
         .view-section { display: none; }
         .view-section.active { display: block; }
 
-        /* Grid System */
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-            gap: 25px; 
-        }
+        /* Grid - 2 Columns on Mobile */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        @media (min-width: 600px) { .grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; } }
 
-        .card { 
-            background: var(--card); 
-            border: 1px solid var(--border); 
-            border-radius: 25px; 
-            padding: 20px; 
-            display: flex; 
-            flex-direction: column; 
-            transition: 0.3s; 
-            position: relative; 
-        }
+        .card { background: var(--card-color); border: 1px solid var(--border-color); border-radius: 16px; padding: 10px; display: flex; flex-direction: column; position: relative; }
+        
+        /* 1:1 Image Ratio */
+        .card-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 10px; background: #000; margin-bottom: 10px; border: 1px solid var(--border-color); }
+        
+        /* Badges */
+        .badge-container { position: absolute; top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; pointer-events: none; }
+        .card-badge { background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 8px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; }
+        .badge-ep { color: var(--blue-accent); }
+        .badge-logo { color: var(--pink-accent); }
 
-        .card:hover { 
-            transform: translateY(-8px); 
-            border-color: var(--purple); 
-        }
+        .card-title { font-size: 0.9rem; margin-bottom: 10px; font-weight: 400; color: #f1f5f9; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* Button Rows */
+        .btn-row { display: flex; gap: 6px; margin-top: auto; }
+        .btn { flex: 1; padding: 8px 5px; border-radius: 8px; border: none; cursor: pointer; color: #fff; font-weight: 500; font-size: 0.8rem; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 5px; text-decoration: none; text-align: center; }
+        .btn-primary { background: linear-gradient(45deg, var(--pink-accent), var(--purple-accent)); }
+        .btn-secondary { background: rgba(255,255,255,0.1); border: 1px solid var(--border-color); }
+        .btn-full { width: 100%; padding: 12px; font-size: 0.95rem; border-radius: 12px; }
 
-        .card-img { 
-            width: 100%; 
-            height: 200px; 
-            object-fit: cover; 
-            border-radius: 18px; 
-            background: #000; 
-            margin-bottom: 20px; 
-            border: 1px solid var(--border); 
-        }
+        /* Login Box */
+        .login-card { max-width: 400px; margin: 40px auto; padding: 25px; background: var(--card-color); border-radius: 20px; border: 1px solid var(--border-color); }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 0.8rem; color: var(--text-dim); margin-bottom: 5px; text-transform: uppercase; }
+        input[type="text"], input[type="url"], input[type="email"], input[type="password"] { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 10px; color: #fff; outline: none; font-size: 0.9rem; }
+        
+        /* Checkbox */
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; cursor: pointer; }
+        .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--pink-accent); cursor: pointer; }
+        .checkbox-group span { font-size: 0.9rem; color: #fff; }
 
-        .card-title { 
-            font-size: 1.05rem; 
-            margin-bottom: 20px; 
-            font-weight: 400; 
-            color: #f1f5f9; 
-            min-height: 3rem;
-        }
+        /* Admin Dashboard */
+        .admin-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .add-card { border: 2px dashed var(--pink-accent); background: transparent; aspect-ratio: 1/1; justify-content: center; color: var(--pink-accent); cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .action-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; gap: 10px; opacity: 0; transition: 0.3s; }
+        .card:hover .action-layer { opacity: 1; }
+        .btn-icon { width: 40px; height: 40px; border-radius: 50%; background: rgba(0,0,0,0.9); color: #fff; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); cursor: pointer; }
 
-        /* Buttons */
-        .btn { 
-            width: 100%; 
-            padding: 15px; 
-            border-radius: 16px; 
-            border: none; 
-            cursor: pointer;
-            background: linear-gradient(45deg, var(--pink), var(--purple)); 
-            color: #fff;
-            font-weight: 600; 
-            font-size: 1rem; 
-            transition: 0.2s; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 10px;
-            touch-action: manipulation;
-        }
-
-        .btn:active { 
-            transform: scale(0.96); 
-            opacity: 0.9; 
-        }
-
-        .btn-secondary { 
-            background: rgba(255,255,255,0.05); 
-            border: 1px solid var(--border); 
-        }
-
-        .btn:disabled { 
-            opacity: 0.5; 
-            cursor: not-allowed; 
-        }
-
-        /* Login Card */
-        .login-card { 
-            max-width: 420px; 
-            margin: 50px auto; 
-            padding: 40px; 
-            background: var(--card); 
-            border-radius: 35px; 
-            border: 1px solid var(--border); 
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5); 
-        }
-
-        .form-group { margin-bottom: 25px; }
-
-        .form-group label { 
-            display: block; 
-            font-size: 0.8rem; 
-            color: var(--text-dim); 
-            margin-bottom: 10px; 
-            text-transform: uppercase; 
-        }
-
-        input { 
-            width: 100%; 
-            padding: 16px; 
-            background: rgba(0,0,0,0.3); 
-            border: 1px solid var(--border); 
-            color: #fff; 
-            border-radius: 14px; 
-            outline: none; 
-            font-size: 1rem; 
-        }
-
-        input:focus { border-color: var(--blue); }
-
-        /* Admin UI */
-        .admin-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 35px; 
-        }
-
-        .add-card { 
-            border: 2.5px dashed var(--pink); 
-            background: transparent; 
-            height: 300px; 
-            justify-content: center; 
-            color: var(--pink); 
-            cursor: pointer; 
-            font-weight: 600; 
-        }
-
-        .action-btns { 
-            position: absolute; 
-            top: 15px; 
-            right: 15px; 
-            display: flex; 
-            gap: 10px; 
-        }
-
-        .icon-btn { 
-            width: 38px; 
-            height: 38px; 
-            border-radius: 50%; 
-            background: rgba(0,0,0,0.8); 
-            color: #fff; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            border: 1px solid var(--border); 
-            cursor: pointer; 
-        }
-
-        /* Modal */
-        .modal { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.95); 
-            display: none; 
-            align-items: center; 
-            justify-content: center; 
-            z-index: 1000; 
-            padding: 20px; 
-        }
-
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 15px; }
         .modal.active { display: flex; }
+        .modal-content { background: var(--card-color); padding: 25px; border-radius: 20px; width: 100%; max-width: 450px; position: relative; border: 1px solid var(--purple-accent); max-height: 90vh; overflow-y: auto; }
 
-        .modal-content { 
-            background: var(--card); 
-            padding: 40px; 
-            border-radius: 35px; 
-            width: 100%; 
-            max-width: 500px; 
-            position: relative; 
-            border: 1px solid var(--border); 
-        }
-
-        /* Status Display */
-        .status-box { 
-            font-size: 0.85rem; 
-            text-align: center; 
-            margin-top: 15px; 
-            min-height: 1.2rem; 
-        }
-
-        .error { color: #f87171; }
-        .success { color: #4ade80; }
-
-        .footer { 
-            text-align: center; 
-            margin-top: 80px; 
-            padding: 40px; 
-            opacity: 0.2; 
-            border-top: 1px solid var(--border); 
-        }
-
-        .admin-link { 
-            color: var(--text-dim); 
-            text-decoration: none; 
-            font-size: 0.75rem; 
-        }
+        .footer { text-align: center; margin-top: 40px; padding: 20px; opacity: 0.3; border-top: 1px solid var(--border-color); }
+        .admin-link { color: var(--text-dim); text-decoration: none; font-size: 0.75rem; }
+        .status-text { font-size: 0.8rem; text-align: center; margin-top: 10px; min-height: 1.2rem; color: #f87171; }
     </style>
 </head>
 <body>
 
 <div id="loader">
     <div class="spinner"></div>
-    <p id="load-msg" style="margin-top: 20px; font-size: 0.9rem; color: var(--blue);">Connecting to System...</p>
+    <div id="debug-msg">System Initialization...</div>
 </div>
 
 <div class="container">
     <header>
         <h1>เว็บไซต์สำหรับสมาชิกภายในคอร์สสอนทำเว็บสไตล์พิ้งจูเท่านั้น</h1>
-        <p class="subtitle">Secure Membership Control System</p>
+        <p class="subtitle">Premium Template Catalog</p>
     </header>
 
-    <!-- 1. Guest Content -->
+    <!-- User View -->
     <section id="view-user" class="view-section">
+        <div id="controls-area" class="controls-area" style="display: none;">
+            <div class="search-box">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="search-input" placeholder="ค้นหาชื่อเทมเพลต หรือ หมวดหมู่..." oninput="handleSearch(event)">
+            </div>
+            <div class="filter-scroll" id="filter-buttons"></div>
+        </div>
+
         <div id="user-grid" class="grid"></div>
         <div class="footer">
-            <a href="javascript:void(0)" onclick="switchView('view-login')" class="admin-link">Administrator Login</a>
+            <a href="javascript:void(0)" onclick="switchSection('view-login')" class="admin-link">Administrator Login</a>
         </div>
     </section>
 
-    <!-- 2. Admin Login -->
+    <!-- Login View -->
     <section id="view-login" class="view-section">
         <div class="login-card">
-            <h2 style="text-align:center; margin-bottom:35px; font-weight: 500;">Admin Login</h2>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="login-email" placeholder="example@email.com">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="login-pass" placeholder="Password">
-            </div>
-            <button class="btn" id="btn-login-submit">เข้าสู่ระบบจัดการ</button>
-            <div id="login-status" class="status-box"></div>
-            <button class="btn btn-secondary" style="margin-top:15px;" onclick="switchView('view-user')">กลับหน้าหลัก</button>
+            <h2 style="text-align:center; margin-bottom:20px; font-weight: 500;">Admin Login</h2>
+            <div class="input-group"><label>Email Address</label><input type="email" id="login-email"></div>
+            <div class="input-group"><label>Password</label><input type="password" id="login-pass"></div>
+            <button class="btn btn-primary btn-full" onclick="processLogin()">เข้าสู่ระบบจัดการ</button>
+            <div id="login-status" class="status-text"></div>
+            <button class="btn btn-secondary btn-full" style="margin-top:10px;" onclick="switchSection('view-user')">กลับหน้าหลัก</button>
         </div>
     </section>
 
-    <!-- 3. Admin Dashboard -->
+    <!-- Admin View -->
     <section id="view-admin" class="view-section">
-        <div class="admin-header">
-            <h2>จัดการฐานข้อมูล</h2>
-            <button class="btn btn-secondary" style="width:auto; padding:10px 25px;" id="btn-logout">Logout</button>
+        <div class="admin-nav">
+            <h2 style="font-size: 1.2rem;">จัดการเทมเพลต</h2>
+            <button class="btn btn-secondary" style="width:auto; padding:6px 15px; font-size:0.8rem;" onclick="processLogout()">ออกจากระบบ</button>
         </div>
         <div id="admin-grid" class="grid"></div>
     </section>
 </div>
 
-<!-- Modal Popup -->
+<!-- Modal Form -->
 <div id="modal" class="modal">
     <div class="modal-content">
-        <h3 id="modal-title" style="margin-bottom:30px;">จัดการข้อมูลรายการ</h3>
+        <h3 id="modal-title" style="margin-bottom:20px; font-size:1.2rem;">จัดการข้อมูล</h3>
         
-        <div class="form-group">
-            <label>รูปภาพพรีวิว</label>
+        <div class="input-group">
+            <label>รูปภาพพรีวิว (สัดส่วน 1:1)</label>
             <input type="file" id="f-img" accept="image/*">
-            <img id="p-img" style="width:100%; height:160px; object-fit:cover; border-radius:15px; margin-top:15px; display:none; border:1px solid var(--border);">
+            <img id="p-img" style="width:100px; height:100px; object-fit:cover; border-radius:10px; margin-top:10px; display:none; border:1px solid var(--border-color);">
         </div>
 
-        <div class="form-group"><label>หมวดหมู่ (EP)</label><input type="text" id="f-ep"></div>
-        <div class="form-group"><label>ชื่อเทมเพลต</label><input type="text" id="f-title"></div>
-        <div class="form-group"><label>ลิงก์ Google Drive</label><input type="url" id="f-link"></div>
+        <div class="input-group"><label>หมวดหมู่ (เช่น โทนดาร์ก, EP.1)</label><input type="text" id="f-ep"></div>
+        <div class="input-group"><label>ชื่อเทมเพลต</label><input type="text" id="f-title"></div>
+        
+        <label class="checkbox-group">
+            <input type="checkbox" id="f-logo">
+            <span>เทมเพลตนี้มีโลโก้ประกอบ</span>
+        </label>
+
+        <div class="input-group"><label>ลิงก์ ดูตัวอย่างจริง</label><input type="url" id="f-preview" placeholder="https://..."></div>
+        <div class="input-group"><label>ลิงก์ ใช้งาน (Google Docs)</label><input type="url" id="f-link" placeholder="https://..."></div>
         
         <input type="hidden" id="f-id">
         <input type="hidden" id="f-old-url">
         
-        <div style="display:flex; gap:15px; margin-top:35px;">
-            <button class="btn btn-secondary" onclick="closeModal()">ยกเลิก</button>
-            <button class="btn" id="btn-save">บันทึกข้อมูล</button>
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button class="btn btn-secondary btn-full" onclick="closeModal()">ยกเลิก</button>
+            <button class="btn btn-primary btn-full" id="btn-save" onclick="processSave()">บันทึกข้อมูล</button>
         </div>
-        <div id="modal-status" class="status-box"></div>
+        <div id="modal-status" class="status-text"></div>
     </div>
 </div>
 
@@ -379,127 +187,182 @@
     };
 
     let supabase;
+    let allTemplates = [];
+    let currentCategory = 'All';
+    let searchQuery = '';
 
-    // Fail-safe Timer
-    const failSafe = setTimeout(() => {
-        const msg = document.getElementById('load-msg');
-        if (msg) msg.innerHTML = '<span class="error">การโหลดใช้เวลานานเกินไป กรุณารีเฟรชหน้าจอ</span>';
-    }, 10000);
+    const timeout = setTimeout(() => {
+        document.getElementById('debug-msg').innerHTML = 'การเชื่อมต่อล่าช้า กรุณารีเฟรชหน้าเว็บ';
+    }, 8000);
 
     window.onload = async function() {
         try {
-            if (typeof window.supabase === 'undefined') throw new Error("SDK Error");
+            if (typeof window.supabase === 'undefined') throw new Error("System SDK Error");
             supabase = window.supabase.createClient(CONFIG.URL, CONFIG.KEY);
+            clearTimeout(timeout);
             
-            clearTimeout(failSafe);
-            
-            // Session Check
             const { data: { session } } = await supabase.auth.getSession();
-            if (session) switchView('view-admin');
-            else switchView('view-user');
+            if (session) switchSection('view-admin');
+            else switchSection('view-user');
 
-            bindEvents();
+            setupImagePreview();
             document.getElementById('loader').style.display = 'none';
         } catch (err) {
-            document.getElementById('load-msg').innerHTML = `<span class="error">System Error: ${err.message}</span>`;
+            document.getElementById('debug-msg').innerText = `Error: ${err.message}`;
         }
     };
 
-    function bindEvents() {
-        document.getElementById('btn-login-submit').onclick = handleLogin;
-        document.getElementById('btn-logout').onclick = handleLogout;
-        document.getElementById('btn-save').onclick = handleSave;
-        
-        document.getElementById('f-img').onchange = function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = ex => {
-                    const p = document.getElementById('p-img');
-                    p.src = ex.target.result;
-                    p.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }
-        };
-    }
-
-    function switchView(id) {
+    function switchSection(id) {
         document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if (id === 'view-user') fetchUserContent();
-        if (id === 'view-admin') fetchAdminContent();
+        if (id === 'view-user') fetchUserView();
+        if (id === 'view-admin') fetchAdminView();
     }
 
-    async function handleLogin() {
-        const email = document.getElementById('login-email').value;
-        const pass = document.getElementById('login-pass').value;
-        const status = document.getElementById('login-status');
-        
-        if (!email || !pass) { status.innerHTML = '<span class="error">กรุณากรอกข้อมูลให้ครบ</span>'; return; }
-        
-        status.innerHTML = 'Verifying...';
-        const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
-        
-        if (error) status.innerHTML = `<span class="error">${error.message}</span>`;
-        else switchView('view-admin');
-    }
-
-    async function handleLogout() {
-        await supabase.auth.signOut();
-        switchView('view-user');
-    }
-
-    async function fetchUserContent() {
+    /* ================= SYSTEM: USER ================= */
+    async function fetchUserView() {
         const area = document.getElementById('user-grid');
-        area.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">Loading Database...</p>';
+        const controls = document.getElementById('controls-area');
+        area.innerHTML = '<p style="grid-column: 1/-1; text-align:center; font-size:0.9rem;">Loading Database...</p>';
         
-        const { data, error } = await supabase.from('templates').select('*').order('ep', { ascending: true });
-        if (error) return area.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+        const { data, error } = await supabase.from('templates').select('*').order('created_at', { ascending: false });
+        if (error) return area.innerHTML = `<p class="text-error">Error: ${error.message}</p>`;
         
-        if (!data || data.length === 0) {
-            area.innerHTML = '<p style="grid-column: 1/-1; text-align: center; opacity: 0.5;">ยังไม่มีข้อมูล</p>';
+        allTemplates = data || [];
+        if (allTemplates.length === 0) {
+            controls.style.display = 'none';
+            area.innerHTML = '<p style="grid-column: 1/-1; text-align:center; opacity:0.5; font-size:0.9rem;">ไม่มีรายการข้อมูล</p>';
             return;
         }
 
-        area.innerHTML = data.map(item => `
-            <div class="card">
-                <img src="${item.image}" class="card-img" onerror="this.src='https://via.placeholder.com/400x300/1e293b/fff?text=No+Image'">
-                <p style="font-size:0.75rem; color:var(--blue); font-weight:600; text-transform:uppercase; margin-bottom:5px;">${item.ep}</p>
-                <h4 class="card-title">${item.title}</h4>
-                <a href="${item.link}" target="_blank" class="btn">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                    เข้าใช้งานเทมเพลต
-                </a>
-            </div>
-        `).join('');
+        controls.style.display = 'block';
+        buildCategoryFilters();
+        renderFilteredTemplates();
     }
 
-    async function fetchAdminContent() {
-        const grid = document.getElementById('admin-grid');
-        grid.innerHTML = '<p style="grid-column: 1/-1;">Synchronizing Grid...</p>';
+    function buildCategoryFilters() {
+        const container = document.getElementById('filter-buttons');
+        const categories = [...new Set(allTemplates.map(item => item.ep).filter(Boolean))];
+        let html = `<button class="filter-btn active" onclick="setCategory('All', this)">ทั้งหมด</button>`;
+        categories.forEach(cat => {
+            html += `<button class="filter-btn" onclick="setCategory('${cat}', this)">${cat}</button>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function setCategory(cat, btnElement) {
+        currentCategory = cat;
+        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+        renderFilteredTemplates();
+    }
+
+    function handleSearch(event) {
+        searchQuery = event.target.value.toLowerCase();
+        renderFilteredTemplates();
+    }
+
+    function renderFilteredTemplates() {
+        const area = document.getElementById('user-grid');
+        let filtered = allTemplates;
+
+        if (currentCategory !== 'All') filtered = filtered.filter(item => item.ep === currentCategory);
+        if (searchQuery) {
+            filtered = filtered.filter(item => 
+                (item.title && item.title.toLowerCase().includes(searchQuery)) || 
+                (item.ep && item.ep.toLowerCase().includes(searchQuery))
+            );
+        }
+
+        if (filtered.length === 0) {
+            area.innerHTML = '<p style="grid-column: 1/-1; text-align:center; opacity:0.5; font-size:0.9rem;">ไม่พบผลลัพธ์</p>';
+            return;
+        }
+
+        area.innerHTML = filtered.map(item => {
+            const hasLogoBadge = item.has_logo ? '<span class="card-badge badge-logo">มีโลโก้</span>' : '';
+            const previewBtn = item.preview_link ? `<a href="${item.preview_link}" target="_blank" class="btn btn-secondary">ตัวอย่าง</a>` : '';
+            const docsBtn = item.link ? `<a href="${item.link}" target="_blank" class="btn btn-primary">ใช้งาน</a>` : '';
+
+            return `
+            <div class="card">
+                <div class="badge-container">
+                    <span class="card-badge badge-ep">${item.ep || 'ทั่วไป'}</span>
+                    ${hasLogoBadge}
+                </div>
+                <img src="${item.image}" class="card-img" onerror="this.src='https://via.placeholder.com/400x400/1e293b/fff?text=No+Image'">
+                <h4 class="card-title">${item.title || 'ไม่ได้ระบุชื่อ'}</h4>
+                <div class="btn-row">
+                    ${previewBtn}
+                    ${docsBtn}
+                </div>
+            </div>
+            `;
+        }).join('');
+    }
+
+    /* ================= SYSTEM: ADMIN ================= */
+    async function processLogin() {
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-pass').value;
+        const status = document.getElementById('login-status');
+        if (!email || !pass) { status.innerText = 'กรุณาระบุข้อมูล'; return; }
         
+        status.style.color = 'var(--blue-accent)';
+        status.innerText = 'Checking...';
+        const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+        
+        if (error) { status.style.color = '#f87171'; status.innerText = error.message; }
+        else switchSection('view-admin');
+    }
+
+    async function processLogout() { await supabase.auth.signOut(); switchSection('view-user'); }
+
+    async function fetchAdminView() {
+        const grid = document.getElementById('admin-grid');
+        grid.innerHTML = '<p style="grid-column: 1/-1;">Loading...</p>';
         const { data, error } = await supabase.from('templates').select('*').order('created_at', { ascending: false });
         if (error) return;
 
-        grid.innerHTML = `<div class="card add-card" onclick="openModal()">+ เพิ่มรายการข้อมูล</div>`;
+        grid.innerHTML = `
+            <div class="card add-card" onclick="openModal()">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <p style="margin-top:10px; font-size:0.85rem;">เพิ่มรายการ</p>
+            </div>
+        `;
 
         data.forEach(item => {
             const div = document.createElement('div');
             div.className = 'card';
             div.innerHTML = `
-                <div class="action-btns">
-                    <button class="icon-btn btn-edit">Edit</button>
-                    <button class="icon-btn btn-del" style="color:#f87171">Del</button>
+                <div class="badge-container">
+                    <span class="card-badge badge-ep">${item.ep || 'ทั่วไป'}</span>
+                    ${item.has_logo ? '<span class="card-badge badge-logo">มีโลโก้</span>' : ''}
                 </div>
-                <img src="${item.image}" class="card-img">
-                <p style="font-size:0.75rem; color:var(--blue); font-weight:600;">${item.ep}</p>
-                <p style="font-size:0.9rem; margin-top:5px;">${item.title}</p>
+                <div class="action-layer">
+                    <button class="btn-icon" onclick='openModal(${JSON.stringify(item).replace(/'/g, "&#39;")})'>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </button>
+                    <button class="btn-icon" onclick="processDelete('${item.id}')" style="background:#7f1d1d; border-color:#ef4444;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                </div>
+                <img src="${item.image}" class="card-img" onerror="this.src='https://via.placeholder.com/300x300'">
+                <p class="card-title" style="margin-bottom:0;">${item.title}</p>
             `;
-            div.querySelector('.btn-edit').onclick = () => openModal(item);
-            div.querySelector('.btn-del').onclick = () => handleDelete(item.id);
             grid.appendChild(div);
         });
+    }
+
+    function setupImagePreview() {
+        document.getElementById('f-img').onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = ex => { const p = document.getElementById('p-img'); p.src = ex.target.result; p.style.display = 'block'; };
+                reader.readAsDataURL(file);
+            }
+        };
     }
 
     function openModal(item = null) {
@@ -507,10 +370,12 @@
         document.getElementById('f-title').value = item ? item.title : '';
         document.getElementById('f-ep').value = item ? item.ep : '';
         document.getElementById('f-link').value = item ? item.link : '';
+        document.getElementById('f-preview').value = item ? (item.preview_link || '') : '';
         document.getElementById('f-old-url').value = item ? item.image : '';
-        const p = document.getElementById('p-img');
-        if (item) { p.src = item.image; p.style.display = 'block'; } 
-        else { p.style.display = 'none'; }
+        document.getElementById('f-logo').checked = item ? (item.has_logo === true) : false;
+        
+        const preview = document.getElementById('p-img');
+        if (item && item.image) { preview.src = item.image; preview.style.display = 'block'; } else { preview.style.display = 'none'; }
         
         document.getElementById('modal-title').innerText = item ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูลใหม่';
         document.getElementById('modal').classList.add('active');
@@ -518,28 +383,27 @@
 
     function closeModal() {
         document.getElementById('modal').classList.remove('active');
-        document.getElementById('modal-status').innerHTML = '';
+        document.getElementById('modal-status').innerText = '';
         document.getElementById('f-img').value = '';
     }
 
-    async function handleSave() {
+    async function processSave() {
         const id = document.getElementById('f-id').value;
         const file = document.getElementById('f-img').files[0];
         const status = document.getElementById('modal-status');
         const btn = document.getElementById('btn-save');
 
-        if (!id && !file) { status.innerHTML = '<span class="error">กรุณาเลือกไฟล์ภาพ</span>'; return; }
+        if (!id && !file) return status.innerText = 'กรุณาเลือกไฟล์ภาพ';
         
-        status.innerHTML = 'กำลังประมวลผลข้อมูล...';
+        status.style.color = 'var(--blue-accent)';
+        status.innerText = 'กำลังอัปโหลดข้อมูล...';
         btn.disabled = true;
 
         try {
             let imageUrl = document.getElementById('f-old-url').value;
             if (file) {
-                // 🛑 ล้างชื่อไฟล์ภาษาไทย/อักขระพิเศษเพื่อป้องกัน Invalid Key Error
                 const ext = file.name.split('.').pop();
                 const safeName = Date.now() + "_" + Math.random().toString(36).substring(2, 9) + "." + ext;
-                
                 const { error: upErr } = await supabase.storage.from('images').upload(safeName, file);
                 if (upErr) throw upErr;
                 imageUrl = supabase.storage.from('images').getPublicUrl(safeName).data.publicUrl;
@@ -549,32 +413,30 @@
                 title: document.getElementById('f-title').value, 
                 ep: document.getElementById('f-ep').value, 
                 link: document.getElementById('f-link').value, 
+                preview_link: document.getElementById('f-preview').value,
+                has_logo: document.getElementById('f-logo').checked,
                 image: imageUrl 
             };
 
-            const { error } = id ? 
-                await supabase.from('templates').update(payload).eq('id', id) : 
-                await supabase.from('templates').insert([payload]);
-
+            const { error } = id ? await supabase.from('templates').update(payload).eq('id', id) : await supabase.from('templates').insert([payload]);
             if (error) throw error;
             
             closeModal();
-            fetchAdminContent();
+            fetchAdminView();
         } catch (e) {
-            status.innerHTML = `<span class="error">Error: ${e.message}</span>`;
-        } finally {
-            btn.disabled = false;
-        }
+            status.style.color = '#f87171';
+            status.innerText = `Error: ${e.message}`;
+        } finally { btn.disabled = false; }
     }
 
-    async function handleDelete(id) {
-        if (!confirm("ต้องการลบรายการนี้ใช่ไหม?")) return;
-        const { error } = await supabase.from('templates').delete().eq('id', id);
-        if (error) alert(error.message);
-        else fetchAdminContent();
+    async function processDelete(id) {
+        if (!confirm("ลบรายการนี้ออกจากระบบ?")) return;
+        await supabase.from('templates').delete().eq('id', id);
+        fetchAdminView();
     }
 </script>
 
 </body>
 </html>
+
 
